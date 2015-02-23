@@ -2,3 +2,4 @@
 build
 *.so
 pyclipper/pyclipper.cpp
+*.pyc
