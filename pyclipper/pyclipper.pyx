@@ -1,11 +1,12 @@
 """
-This wrapper is written mainly by Maxime Chalton
-https://sites.google.com/site/maxelsbackyard/home/pyclipper
-Adaptions to make it work with version 5 of Angus' Library by Lukas Treyer
-Adaptions to make it work with version 6.2.1 of Agnus' Library by Gregor Ratajc
+Pyclipper is a wrapper for the C++ translation of Agnus Johnson's Clipper library (http://www.angusj.com/delphi/clipper.php)
 
-1. you need to install cython (http://www.cython.org/#download)
-2. run "python3.3 setup.py install" (or alike) to build it
+Requires cython
+
+This wrapper is written mainly by Maxime Chalton
+Adaptions to make it work with version 5 by Lukas Treyer
+Adaptions to make it work with version 6.2.1 by Gregor Ratajc
+
 """
 
 SILENT = True
@@ -19,11 +20,9 @@ log_action("Python binding clipper library")
 
 import sys as _sys
 import struct
-#from ctypes import *
 import copy as _copy
 import unicodedata as _unicodedata
 import time as _time
-#from cython import *
 
 from cython.operator cimport dereference as deref
 
