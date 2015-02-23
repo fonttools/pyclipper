@@ -2,15 +2,22 @@
 This wrapper is written mainly by Maxime Chalton
 https://sites.google.com/site/maxelsbackyard/home/pyclipper
 Adaptions to make it work with version 5 of Angus' Library by Lukas Treyer
+Adaptions to make it work with version 6.2.1 of Agnus' Library by Gregor Ratajc <me@gregorratajc.com>
 
 1. you need to install cython (http://www.cython.org/#download)
 2. run "python3.3 setup.py install" (or alike) to build it
+        or to build it in place
+   run "python3 setup.py build_ext --inplace"
 """
 
 SILENT = True
+SCALING_FACTOR = 1
 
-if not SILENT:
-    print "Python binding clipper library"
+def log_action(description):
+    if not SILENT:
+        print description
+
+log_action("Python binding clipper library")
 
 import sys as _sys
 import struct
@@ -27,331 +34,212 @@ cdef extern from "Python.h":
     object Py_BuildValue(char *format, ...)
     object PyBuffer_FromMemory(void *ptr, int size)
     #int PyArg_ParseTuple(object struct,void* ptr)
-    char* PyString_AsString(object string)
-    int PyArg_VaParse(object args,  char *format, ...)
-    int PyArg_Parse(object args,  char *format, ...)
-    int PyObject_AsReadBuffer(object obj,  void* buffer, int* buffer_len)
+    char*PyString_AsString(object string)
+    int PyArg_VaParse(object args, char *format, ...)
+    int PyArg_Parse(object args, char *format, ...)
+    int PyObject_AsReadBuffer(object obj, void*buffer, int*buffer_len)
     object PyBuffer_FromObject(object base, int offset, int size)
     object PyBuffer_FromReadWriteObject(object base, int offset, int size)
     PyBuffer_New(object o)
 
 
 cdef extern from "stdio.h":
-    cdef void printf(char*,...)
+    cdef void printf(char*, ...)
 
 cdef extern from "stdlib.h":
-    cdef void* malloc(unsigned int size)
-    cdef void* free(void* p)
+    cdef void*malloc(unsigned int size)
+    cdef void*free(void*p)
     char *strdup(char *str)
-    int strcpy(void* str, void* src)
-    int memcpy(void* str, void* src, int size)
+    int strcpy(void*str, void*src)
+    int memcpy(void*str, void*src, int size)
 
 from libcpp.vector cimport vector
 
+cdef extern from "extra_defines.hpp":
+    cdef int _USE_XYZ
 
-        
 cdef extern from "clipper.hpp" namespace "ClipperLib":
-    #enum ClipType { ctIntersection, ctUnion, ctDifference, ctXor };
 
+    # enum ClipType { ctIntersection, ctUnion, ctDifference, ctXor };
     cdef enum ClipType:
-        ctIntersection= 1,
-        ctUnion=2,
-        ctDifference=3,
-        ctXor=4
-    
-    #enum PolyType { ptSubject, ptClip };
+        ctIntersection = 1,
+        ctUnion = 2,
+        ctDifference = 3,
+        ctXor = 4
+
+    # enum PolyType { ptSubject, ptClip };
     cdef enum PolyType:
-        ptSubject= 1,
-        ptClip=2
-    
-    
+        ptSubject = 1,
+        ptClip = 2
+
     # By far the most widely used winding rules for polygon filling are
     # EvenOdd & NonZero (GDI, GDI+, XLib, OpenGL, Cairo, AGG, Quartz, SVG, Gr32)
     # Others rules include Positive, Negative and ABS_GTR_EQ_TWO (only in OpenGL)
     # see http://glprogramming.com/red/chapter11.html
-    #enum PolyFillType { pftEvenOdd, pftNonZero, pftPositive, pftNegative };
+    # enum PolyFillType { pftEvenOdd, pftNonZero, pftPositive, pftNegative };
     cdef enum PolyFillType:
-        pftEvenOdd= 1,
-        pftNonZero=2,
-        pftPositive=3,
-        pftNegative=4
-        
-    cdef enum ResultType:
-        rtPolyTree = 0,
-        rtPolygons = 1
-    
+        pftEvenOdd = 1,
+        pftNonZero = 2,
+        pftPositive = 3,
+        pftNegative = 4
+
+    # The correct type definition is taken from cpp source, so
+    # the use_int32 is handled correctly.
+    # If you need 32 bit ints, just uncomment //#define use_int32 in clipper.hpp
+    # and recompile
+    ctypedef signed long long cInt
     ctypedef signed long long long64
     ctypedef unsigned long long ulong64
-    ctypedef char bool 
 
+    ctypedef char bool
+
+    # TODO: handle "use_xyz" that adds Z coordinate
     cdef struct IntPoint:
-        long64 X
-        long64 Y
-        #IntPoint(X, Y)
-        #IntPoint(long64 X = 0, long64 Y = 0)
-        #IntPoint(long64 x = 0, long64 y = 0): X(x), Y(y) {};
-        #friend std::ostream& operator <<(std::ostream &s, IntPoint &p);
+        cInt X
+        cInt Y
 
-    cdef cppclass Polygon:
-        Polygon()
-        void push_back(IntPoint&)
+    #typedef std::vector< IntPoint > Path;
+    cdef cppclass Path:
+        Path()
+        void push_back(IntPoint &)
         IntPoint& operator[](int)
         IntPoint& at(int)
         int size()
-        
-    cdef cppclass Polygons:
-        Polygons()
-        void push_back(Polygon&)
-        Polygon& operator[](int)
-        Polygon& at(int)
+
+    #typedef std::vector< Path > Paths;
+    cdef cppclass Paths:
+        Paths()
+        void push_back(Path &)
+        Path& operator[](int)
+        Path& at(int)
         int size()
 
     cdef cppclass PolyNode:
         PolyNode()
-        Polygon Contour
+        Path Contour
         PolyNodes Childs
-        PolyNode* Parent
-        PolyNode* GetNext()
+        PolyNode*Parent
+        PolyNode*GetNext()
         bool IsHole()
+        bool IsOpen()
         int ChildCount()
-        
+
     cdef cppclass PolyNodes:
         PolyNodes()
-        void push_back(PolyNode&)
-        PolyNode* operator[](int)
-        PolyNode* at(int)
+        void push_back(PolyNode &)
+        PolyNode*operator[](int)
+        PolyNode*at(int)
         int size()
-        
+
     cdef cppclass PolyTree(PolyNode):
         PolyTree()
         PolyNode& GetFirst()
         void Clear()
         int Total()
-    
+
+    #enum InitOptions {ioReverseSolution = 1, ioStrictlySimple = 2, ioPreserveCollinear = 4};
+    cdef enum InitOptions:
+        ioReverseSolution = 1,
+        ioStrictlySimple = 2,
+        ioPreserveCollinear = 4
+
     #enum JoinType { jtSquare, jtRound, jtMiter };
     cdef enum JoinType:
-        jtSquare= 1,
-        jtRound=2
-        jtMiter=3
-        
-    bool ReverseSolution(bool value)
-    
-    #bool Orientation(const Polygon &poly);
-    bool Orientation(vector[IntPoint] poly)
+        jtSquare = 1,
+        jtRound = 2,
+        jtMiter = 3
 
-    #double Area(const Polygon &poly)
-    double Area(vector[IntPoint] poly)
-
-    #void OffsetPolygons(const Polygons &in_polys, Polygons &out_polys, double delta, JoinType jointype = jtSquare, double MiterLimit = 2);
-    void OffsetPolygons(Polygons in_polys, Polygons out_polys, double delta, JoinType jointype, double MiterLimit)
-    
-    #void SimplifyPolygon(const Polygon &in_poly, Polygons &out_polys);
-    void SimplifyPolygon(Polygon in_poly, Polygons out_polys)
-
-    #void SimplifyPolygons(const Polygons &in_polys, Polygons &out_polys);
-    void SimplifyPolygons(Polygons in_polys, Polygons out_polys)
-
-    #void SimplifyPolygons(Polygons &polys);
-    void SimplifyPolygons(Polygons polys)
-
-    #void ReversePoints(Polygon& p);
-    void ReversePoints(Polygon p)
-
-    #void ReversePoints(Polygons& p);
-    void ReversePoints(Polygons p)
-
-    #used internally ...
-
-    #enum EdgeSide { esNeither = 0, esLeft = 1, esRight = 2, esBoth = 3 };
-    cdef enum EdgeSide:
-        esNeither=0,
-        esLeft= 1,
-        esRight=2,
-        esBoth=3
-
-    #enum IntersectProtects { ipNone = 0, ipLeft = 1, ipRight = 2, ipBoth = 3 };
-    cdef enum IntersectProtects:
-        ipNone=0,
-        ipLeft= 1,
-        ipRight=2,
-        ipBoth=3
-
-    struct TEdge:
-        long64 xbot
-        long64 ybot
-        long64 xcurr
-        long64 ycurr
-        long64 xtop
-        long64 ytop
-        double dx
-        long64 tmpX
-        PolyType polyType
-        EdgeSide side 
-        int windDelta #1 or -1 depending on winding direction
-        int windCnt
-        int windCnt2 #winding count of the opposite polytype
-        int outIdx
-        TEdge *next
-        TEdge *prev
-        TEdge *nextInLML
-        TEdge *nextInAEL
-        TEdge *prevInAEL
-        TEdge *nextInSEL
-        TEdge *prevInSEL
-
-    struct IntersectNode:
-        TEdge          *edge1
-        TEdge          *edge2
-        IntPoint        pt
-        IntersectNode  *next
-
-    struct LocalMinima:
-        long64        Y
-        TEdge        *leftBound
-        TEdge        *rightBound
-        LocalMinima  *next
-
-    cdef struct Scanbeam:
-        long64    Y
-        Scanbeam *next
-
-    cdef struct OutRec:
-        int     idx
-        bool    isHole
-        OutRec *FirstLeft
-        OutRec *AppendLink
-        OutPt  *pts
-        OutPt  *bottomPt
-        OutPt  *bottomFlag
-        EdgeSide sides
-
-    cdef struct OutPt:
-        int     idx
-        IntPoint pt
-        OutPt   *next
-        OutPt   *prev
-
-    cdef struct JoinRec:
-        IntPoint  pt1a
-        IntPoint  pt1b
-        int       poly1Idx
-        IntPoint  pt2a
-        IntPoint  pt2b
-        int       poly2Idx
-
-    cdef struct HorzJoinRec:
-        TEdge    *edge
-        int       savedIdx
-
-
-
-    #ctypedef std::vector < OutRec* > PolyOutList
-    #ctypedef  OutRec PolyOutList
-
-    #ctypedef std::vector < TEdge* > EdgeList
-    #ctypedef TEdge EdgeList 
-
-    #ctypedef std::vector < JoinRec* > JoinList
-    #ctypedef std::vector < HorzJoinRec* > HorzJoinList
-    #ctypedef JoinRec JoinList
-    #ctypedef HorzJoinRec HorzJoinList
+    #enum EndType {etClosedPolygon, etClosedLine, etOpenButt, etOpenSquare, etOpenRound};
+    cdef enum EndType:
+        etClosedPolygon = 1,
+        etClosedLine = 2,
+        etOpenButt = 3,
+        etOpenSquare = 4,
+        etOpenRound = 5
 
     cdef struct IntRect:
-        long64 left
-        long64 top
-        long64 right
-        long64 bottom
-        
+        cInt left
+        cInt top
+        cInt right
+        cInt bottom
+
     cdef cppclass Clipper:
-        Clipper()
+        Clipper(int initOptions=0)
         #~Clipper()
-        bool Execute(ClipType clipType,  PolyTree solution,  PolyFillType subjFillType,  PolyFillType clipFillType)
         void Clear()
+        bool Execute(ClipType clipType, Paths & solution, PolyFillType subjFillType, PolyFillType clipFillType)
+        bool Execute(ClipType clipType, PolyTree & solution, PolyFillType subjFillType, PolyFillType clipFillType)
         bool ReverseSolution()
         void ReverseSolution(bool value)
-
-        # Inherited methods from Clipper Base
-        #bool AddPolygon(const Polygon &pg, PolyType polyType)
-        #bool AddPolygons( const Polygons &ppg, PolyType polyType)
-
-        bool AddPolygon( Polygon pg, PolyType polyType)
-        bool AddPolygons( Polygons ppg, PolyType polyType)
-        void Clear()
+        bool StrictlySimple()
+        void StrictlySimple(bool value)
+        bool PreserveCollinear()
+        void PreserveCollinear(bool value)
+        bool AddPath(Path & path, PolyType polyType, bool closed)
+        bool AddPaths(Paths & paths, PolyType polyType, bool closed)
         IntRect GetBounds()
 
-#=============================  Namespace methods ==================
+    cdef cppclass ClipperOffset:
+        ClipperOffset(double miterLimit = 2.0, double roundPrecision = 0.25)
+        #~ClipperOffset()
+        void AddPath(Path & path, JoinType joinType, EndType endType)
+        void AddPaths(Paths & paths, JoinType joinType, EndType endType)
+        void Execute(Paths & solution, double delta)
+        void Execute(PolyTree & solution, double delta)
+        void Clear()
+        double MiterLimit
+        double ArcTolerance
 
-#===========================================================
+    bool Orientation(const Path & poly)
+    double Area(const Path & poly)
+    int PointInPolygon(const IntPoint & pt, const Path & path)
 
-#===========================================================
-# OffsetPolygons(const Polygons &in_polys, Polygons &out_polys,  double delta, JoinType jointype = jtSquare, double MiterLimit = 2);
-def offset( pypolygons, delta=100,  jointype = jtSquare, double MiterLimit = 2):
-    if not SILENT:
-        print "Offset polygon"
-    cdef Polygon poly =  Polygon() 
-    cdef IntPoint a
-    cdef Polygons polys =  Polygons()
-    for pypolygon in pypolygons:
-        for pypoint in pypolygon:
-            a = IntPoint(pypoint[0], pypoint[1])
-            poly.push_back(a)
-     
-        polys.push_back(poly)  
+    void SimplifyPolygon(const Path & in_poly, Paths & out_polys, PolyFillType fillType = pftEvenOdd)
+    void SimplifyPolygons(const Paths & in_polys, Paths & out_polys, PolyFillType fillType = pftEvenOdd)
+    void SimplifyPolygons(Paths & polys, PolyFillType fillType = pftEvenOdd)
 
-    cdef Polygons solution
-    OffsetPolygons( polys, solution,  delta,  jointype, MiterLimit)
-    n = solution.size()
-    sol = []
-    if not SILENT:
-        print "Solution is made of %i loops"%n  
+    void CleanPolygon(const Path& in_poly, Path& out_poly, double distance = 1.415)
+    void CleanPolygon(Path& poly, double distance = 1.415)
+    void CleanPolygons(const Paths& in_polys, Paths& out_polys, double distance = 1.415)
+    void CleanPolygons(Paths& polys, double distance = 1.415)
 
-    cdef IntPoint point
-    for i in range(n):
-        poly = solution[i]
-        m = poly.size()
-        if not SILENT:
-            print "loop has %i points"%m
-        loop = []
-        for i in range(m):
-            point = poly[i]
-            print point.X ,point.Y
-            loop.append([point.X ,point.Y])
-        sol.append(loop)
-    return sol
+    void MinkowskiSum(const Path& pattern, const Path& path, Paths& solution, bool pathIsClosed)
+    void MinkowskiSum(const Path& pattern, const Paths& paths, Paths& solution, bool pathIsClosed)
+    void MinkowskiDiff(const Path& poly1, const Path& poly2, Paths& solution)
 
-#===========================================================
-# void SimplifyPolygons(const Polygons &in_polys, Polygons &out_polys)
-def simplify_polygons(pypolygons):
-    if not SILENT:
-        print "SimplifyPolygons "
-    cdef Polygon poly =  Polygon() 
-    cdef IntPoint a
-    cdef Polygons polys =  Polygons()
-    for pypolygon in pypolygons:
-        for pypoint in pypolygon:
-            a = IntPoint(pypoint[0], pypoint[1])
-            poly.push_back(a)
-        polys.push_back(poly)  
+    void PolyTreeToPaths(const PolyTree& polytree, Paths& paths)
+    void ClosedPathsFromPolyTree(const PolyTree& polytree, Paths& paths)
+    void OpenPathsFromPolyTree(PolyTree& polytree, Paths& paths)
 
-    cdef Polygons solution
-    SimplifyPolygons( polys, solution)
-    n = solution.size()
-    sol = []
+    void ReversePath(Path& p)
+    void ReversePaths(Paths& p)
 
-    cdef IntPoint point
-    for i in range(n):
-        poly = solution[i]
-        m = poly.size()
-        loop = []
-        for i in range(m):
-            point = poly[i]
-            loop.append([point.X ,point.Y])
-        sol.append(loop)
-    return sol
+#============================= Enum mapping ================
+
+JT_SQUARE = jtSquare
+JT_ROUND = jtRound
+JT_MITER = jtMiter
+
+ET_CLOSEDPOLYGON = etClosedPolygon
+ET_CLOSEDLINE = etClosedLine
+ET_OPENBUTT = etOpenButt
+ET_OPENSQUARE = etOpenSquare
+ET_OPENROUND = etOpenRound
+
+CT_INTERSECTION = ctIntersection
+CT_UNION = ctUnion
+CT_DIFFERENCE = ctDifference
+CT_XOR = ctXor
+
+PT_SUBJECT = ptSubject
+PT_CLIP = ptClip
+
+PFT_EVENODD = pftEvenOdd
+PFT_NONZERO = pftNonZero
+PFT_POSITIVE = pftPositive
+PFT_NEGATIVE = pftNegative
 
 #=============================  PyPolyNode =================
-
-#===========================================================
 class PyPolyNode:
     def __init__(self):
         self.contour = []
@@ -360,163 +248,289 @@ class PyPolyNode:
         self.is_hole = False
         self.depth = 0
 
-#=============================  Pyclipper ==================
+#=============================  Other objects ==============
+from collections import namedtuple
+PyIntRect = namedtuple('PyIntRect', ['left', 'top', 'right', 'bottom'])
 
-#===========================================================
+class ClipperException(Exception):
+    pass
+
+#============================= Namespace functions =========
+def orientation(py_path):
+    return <bint>Orientation(_to_clipper_path(py_path))
+
+def area(py_path):
+    return <double>Area(_to_clipper_path(py_path))
+
+def point_in_polygon(py_point, py_path):
+    return <int>PointInPolygon(_to_clipper_point(py_point), _to_clipper_path(py_path))
+
+# TODO: In the following commented functions Cython generates invalid cpp code
+# that throws the "aggregate has incomplete type and cannot be defined" when
+# compiling.
+"""
+def simplify_polygon(py_path, PolyFillType fill_type=pftEvenOdd):
+    cdef Paths solution
+    SimplifyPolygon(_to_clipper_path(py_path), solution, fill_type)
+    return _from_clipper_paths(solution)
+
+def simplify_polygons(py_paths, PolyFillType fill_type=pftEvenOdd):
+    cdef Paths solution
+    SimplifyPolygons(_to_clipper_paths(py_paths), solution, fill_type)
+    return _from_clipper_paths(solution)
+
+def clean_polygon(py_path, double distance):
+    cdef Path solution
+    cdef Path path = _to_clipper_path(py_path)
+    CleanPolygon(path, solution, distance)
+    return _from_clipper_path(solution)
+
+def clean_polygons(py_paths, double distance=1.415):
+    cdef Paths solution
+    CleanPolygons(_to_clipper_paths(py_paths), solution, distance)
+    return _from_clipper_paths(solution)
+"""
+
+def minkowski_sum(py_path_pattern, py_path, bint path_is_closed):
+    cdef Paths solution
+    MinkowskiSum(_to_clipper_path(py_path_pattern),
+                 _to_clipper_path(py_path),
+                 solution,
+                 path_is_closed
+    )
+    return _from_clipper_paths(solution)
+
+def minkowski_sum2(py_path_pattern, py_paths, bint path_is_closed):
+    cdef Paths solution
+    MinkowskiSum(
+        _to_clipper_path(py_path_pattern),
+        _to_clipper_paths(py_paths),
+        solution,
+        path_is_closed
+    )
+    return _from_clipper_paths(solution)
+
+def minkowski_diff(py_path_1, py_path_2):
+    cdef Paths solution
+    MinkowskiDiff(_to_clipper_path(py_path_1), _to_clipper_path(py_path_2), solution)
+    return _from_clipper_paths(solution)
+
+# TODO: Add _to_clipper_polytree for the following 3 functions
+def polytree_to_paths(py_poly_node):
+    pass
+
+def closed_paths_from_polytree(py_poly_node):
+    pass
+
+def open_paths_from_polytree(py_poly_node):
+    pass
+
+# TODO: This 2 functions are probably not useful - besides reversing it has to
+# convert paths twice, it might be better if developer does this
+# without this package. Adds unneeded complexity.
+def reverse_path(py_path):
+    cdef Path path = _to_clipper_path(py_path)
+    ReversePath(path)
+    return _from_clipper_path(path)
+
+def reverse_paths(py_paths):
+    cdef Paths paths = _to_clipper_paths(py_paths)
+    ReversePaths(paths)
+    return _from_clipper_paths(paths)
+
 cdef class Pyclipper:
-    cdef Clipper *thisptr      # hold a C++ instance which we're wrapping
-    error_code = {-1:"UNSPECIFIED_ERROR", -2: "BAD_TRI_INDEX", -3:"NO_VOX_MAP", -4:"QUERY_FAILED"}
-
-    #===========================================================
+    cdef Clipper *thisptr  # hold a C++ instance which we're wrapping
     def __cinit__(self):
-        if not SILENT:
-            print "Creating a Clipper"
+        log_action("Creating a Clipper")
         self.thisptr = new Clipper()
 
-    #===========================================================
     def __dealloc__(self):
-        if not SILENT:
-            print "Deleting a Clipper"
+        log_action("Deleting a Clipper")
         del self.thisptr
 
-    #===========================================================
-    #bool AddPolygon(Polygon pg, PolyType polyType)
-    def add_polygon(self, pypolygon):
-        """
-        Pyclipper.add_polygon([[x,y],[x,y],[x,y]])
-        This will add a subject polygon to the Pyclipper object.
-        Upon Pyclipper.extecute() all polygons added with 
-        Pyclipper.sub_polygon() will be processed on this polygon.
-        Note: for clipping mode "Union" (Pyclipper.execute(1)) a 
-        distinction between subject and clipper (add_polygon / 
-        sub_polygon) is not necessary. 
-        """
-        if not SILENT:
-            print "Adding polygon"
+    def add_path(self, py_path, PolyType poly_type, closed=True):
+        cdef Path path = _to_clipper_path(py_path)
+        cdef bint result = <bint> self.thisptr.AddPath(path, poly_type, <bint> closed)
+        if not result:
+            raise ClipperException('The path is invalid for clipping')
+        return result
 
-        cdef Polygon square =  Polygon() 
-        cdef IntPoint a
-        for p in pypolygon:
-            a = IntPoint(p[0], p[1])
-            square.push_back(a)
+    def add_paths(self, py_paths, PolyType poly_type, closed=True):
+        cdef Paths paths = _to_clipper_paths(py_paths)
+        cdef bint result = <bint> self.thisptr.AddPaths(paths, poly_type, <bint> closed)
+        if not result:
+            raise ClipperException('All paths are invalid for clipping')
+        return result
 
-        cdef Polygons subj =  Polygons() 
-        subj.push_back(square)  
-        self.thisptr.AddPolygons(subj, ptSubject)
+    def clear(self):
+        self.thisptr.Clear()
 
+    def get_bounds(self):
+        cdef IntRect rr = <IntRect> self.thisptr.GetBounds()
+        return PyIntRect(left=rr.left, top=rr.top, right=rr.right, bottom=rr.bottom)
 
-    #===========================================================
-    #bool AddPolygon(Polygon pg, PolyType polyType)
-    def sub_polygon(self, pypolygon):
-        """
-        sub_polygon([[x,y],[x,y],[x,y]])
-        This will add a clipper polygon to the Pyclipper object.
-        Upon Pyclipper.execute() it will substract/add it from/to
-        the subject polygon (added to Pyclipper with Pyclipper.add_polygon)
-        """
-        if not SILENT:
-            print "Sub polygon"
-        cdef Polygon square =  Polygon() 
-        cdef IntPoint a
-        for p in pypolygon:
-            a = IntPoint(p[0], p[1])
-            square.push_back(a)
+    def execute(self, ClipType clip_type=ctDifference, PolyFillType subj_fill_type=pftEvenOdd,
+                PolyFillType clip_fill_type=pftEvenOdd):
+        cdef Paths solution
+        cdef object success = <bint> self.thisptr.Execute(clip_type, solution, subj_fill_type, clip_fill_type)
+        if not success:
+            raise ClipperException('Execution of clipper did not succeed!')
+        return _from_clipper_paths(solution)
 
-        cdef Polygons subj =  Polygons() 
-        subj.push_back(square)  
-        self.thisptr.AddPolygons(subj, ptClip)
-        
-    #===========================================================
-    # IntRect GetBounds();
-    def GetBounds(self):
-        cdef IntRect rect=  self.thisptr.GetBounds()
-        return {"top":rect.top, "left":rect.left, "right":rect.right, "bottom":rect.bottom}
-    
-    #===========================================================
-    # IntRect GetBounds();
-    # def Clear(self):
-#         self.thisptr.Clear()
-#         return 
-#     
-#     due to some strange compilation failure: 
-#      # IntRect GetBounds();
-#     def Clear(self):
-#         self.thisptr.Clear()
-#                          ^
-# ------------------------------------------------------------
-# 
-# pyclipper.pyx:431:26: ambiguous overloaded method
-# Cython version 0.19.1
-    
-    
-    #===========================================================
-    # reverse solution
-    def ReverseSolution(self, direction):
-        #cdef bool ret = self.thisptr.ReverseSolution()
-        return
-
-    #===========================================================     
-    cdef _nodewalk(self, PolyNode *cPolyNode, object parent):
-        pynode = PyPolyNode()
-        
-        # parent
-        pynode.parent = parent
-        
-        # is hole?
-        cdef object ishole  = <bint>cPolyNode.IsHole()
-        pynode.is_hole = ishole
-        
-        # contour
-        n = cPolyNode.Contour.size()
-        cdef IntPoint point
-        for i in range(n):              
-            point = cPolyNode.Contour[i]
-            #print point.X ,point.Y
-            pynode.contour.append([point.X ,point.Y])
-    
-        # kids
-        cdef PolyNode *cnode
-        depths = [0]
-        for i in range(cPolyNode.ChildCount()):
-            cnode = cPolyNode.Childs[i]
-            pychild = self._nodewalk(cnode, pynode)
-            depths.append(pychild.depth + 1)
-            pynode.childs.append(pychild)
-        
-        pynode.depth = max(depths)
-    
-        return pynode
- 
-     
-     #===========================================================
-    # Execute(ClipType clipType, PolyTree solution, PolyFillType subjFillType, PolyFillType clipFillType)
-    def execute(self, mode=ctDifference, add_fill=pftEvenOdd, sub_fill=pftEvenOdd):
-        """
-        execute( mode=ctDifference, add_fill=pftEvenOdd, sub_fill=pftEvenOdd)
-        mode: ctIntersection= 0, ctUnion=1, ctDifference=2, ctXor=3
-        fill types: pftEvenOdd= 0, pftNonZero=1, pftPositive=2, pftNegative=3
-        returns a PolyTree (PolyNode with empty contour and a list of Child-PolyNodes)
-        class PolyNode:
-            contour = [] # list that stores points of a polygon
-            childs = [] # list that keeps track of all "holes"
-        further documentation: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/PolyTree/_Body.htm
-        """    
+    def execute2(self, ClipType clip_type=ctDifference, PolyFillType subj_fill_type=pftEvenOdd,
+                 PolyFillType clip_fill_type=pftEvenOdd):
         cdef PolyTree solution
-        cdef PolyNode *cChild
-        cdef object success = <bint>self.thisptr.Execute(mode, solution, add_fill , sub_fill)
-        if success:
-            polytree = PyPolyNode()            
-            n = solution.ChildCount()
-            depths = [0]
-            for i in range(n):
-                cChild = solution.Childs[i]
-                pychild = self._nodewalk(cChild, polytree)
-                polytree.childs.append(pychild)
-                depths.append(pychild.depth + 1)
-            polytree.depth = max(depths)
-            return polytree
-        else:
-            raise Exception('Execution of clipper did not succeed!')
+        cdef object success = <bint> self.thisptr.Execute(clip_type, solution, subj_fill_type, clip_fill_type)
+        if not success:
+            raise ClipperException('Execution of clipper did not succeed!')
+        return _from_poly_tree(solution)
+
+    property reverse_solution:
+        def __get__(self):
+            return <bint> self.thisptr.ReverseSolution()
+
+        def __set__(self, value):
+            self.thisptr.ReverseSolution(<bint> value)
+
+    property preserve_collinear:
+        def __get__(self):
+            return <bint> self.thisptr.PreserveCollinear()
+
+        def __set__(self, value):
+            self.thisptr.PreserveCollinear(<bint> value)
+
+    property strictly_simple:
+        def __get__(self):
+            return <bint> self.thisptr.StrictlySimple()
+
+        def __set__(self, value):
+            self.thisptr.StrictlySimple(<bint> value)
 
 
+cdef class PyclipperOffset:
+    cdef ClipperOffset *thisptr
 
+    def __cinit__(self):
+        log_action("Creating a ClipperOffset")
+        self.thisptr = new ClipperOffset()
+
+    def __dealloc__(self):
+        log_action("Deleting a ClipperOffset")
+        del self.thisptr
+
+    def add_path(self, py_path, JoinType join_type, EndType end_type):
+        cdef Path path = _to_clipper_path(py_path)
+        self.thisptr.AddPath(path, join_type, end_type)
+
+    def add_paths(self, py_paths, JoinType join_type, EndType end_type):
+        cdef Paths paths = _to_clipper_paths(py_paths)
+        self.thisptr.AddPaths(paths, join_type, end_type)
+
+    def execute(self, double delta):
+        cdef Paths solution
+        self.thisptr.Execute(solution, delta)
+        return _from_clipper_paths(solution)
+
+    def execute2(self, double delta):
+        cdef PolyTree solution
+        self.thisptr.Execute(solution, delta)
+        return _from_poly_tree(solution)
+
+    def clear(self):
+        self.thisptr.Clear()
+
+    property miter_limit:
+        def __get__(self):
+            return <double> self.thisptr.MiterLimit
+
+        def __set__(self, value):
+            self.thisptr.MiterLimit = <double> value
+
+    property arc_tolerance:
+        def __get__(self):
+            return <double> self.thisptr.ArcTolerance
+
+        def __set__(self, value):
+            self.thisptr.ArcTolerance = <double> value
+
+
+#=============================== Utility functions =========
+cdef _from_poly_tree(PolyTree & cPolyTree):
+    poly_tree = PyPolyNode()
+    depths = [0]
+    for i in xrange(cPolyTree.ChildCount()):
+        cChild = cPolyTree.Childs[i]
+        pychild = __node_walk(cChild, poly_tree)
+        poly_tree.childs.append(pychild)
+        depths.append(pychild.depth + 1)
+    poly_tree.depth = max(depths)
+    return poly_tree
+
+cdef __node_walk(PolyNode *cPolyNode, object parent):
+    pynode = PyPolyNode()
+
+    # parent
+    pynode.parent = parent
+
+    # is hole?
+    cdef object ishole = <bint> cPolyNode.IsHole()
+    pynode.is_hole = ishole
+
+    # contour
+    pynode.contour.append(_from_clipper_path(cPolyNode.Contour))
+
+    # kids
+    cdef PolyNode *cNode
+    depths = [0]
+    for i in xrange(cPolyNode.ChildCount()):
+        cNode = cPolyNode.Childs[i]
+        pychild = __node_walk(cNode, pynode)
+        depths.append(pychild.depth + 1)
+        pynode.childs.append(pychild)
+
+    pynode.depth = max(depths)
+
+    return pynode
+
+cdef Paths _to_clipper_paths(object polygons):
+    cdef Paths paths = Paths()
+    for poly in polygons:
+        paths.push_back(_to_clipper_path(poly))
+    return paths
+
+cdef Path _to_clipper_path(object polygon):
+    cdef Path path = Path()
+    cdef IntPoint p
+    for v in polygon:
+        path.push_back(_to_clipper_point(v))
+    return path
+
+cdef IntPoint _to_clipper_point(object py_point):
+    return IntPoint(__to_clipper_value(py_point[0]), __to_clipper_value(py_point[1]))
+
+cdef object _from_clipper_paths(Paths paths):
+    polys = []
+
+    cdef Path path
+    for i in xrange(paths.size()):
+        path = paths[i]
+        polys.append(_from_clipper_path(path))
+
+    return polys
+
+cdef object _from_clipper_path(Path path):
+    poly = []
+    cdef IntPoint point
+    for i in xrange(path.size()):
+        point = path[i]
+        poly.append([
+            __from_clipper_value(point.X),
+            __from_clipper_value(point.Y)
+        ])
+    return poly
+
+cdef cInt __to_clipper_value(val):
+    return val * SCALING_FACTOR
+
+cdef double __from_clipper_value(cInt val):
+    return val / SCALING_FACTOR
