@@ -7,6 +7,11 @@ http://www.lukastreyer.com
 1. you need to install cython (http://www.cython.org/#download)
 2. run "python3.3 setup.py install" (or alike) to build it
 
-TODO:
-  [ ] Update to the latest clipper version (6.2.0)
-  [ ] create & upload a package for PyPI
+# TODO
+  
+  - [x] Update file organization suitable for PyPI
+  - [ ] Update README with: What is it, Install, Dependencies, Examples
+  - [ ] LICENSE
+  - [ ] Tests
+  - [ ] Update to the latest clipper version (6.2.0)
+  - [ ] Upload a package to PyPI
