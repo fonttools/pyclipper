@@ -2,12 +2,10 @@
 This wrapper is written mainly by Maxime Chalton
 https://sites.google.com/site/maxelsbackyard/home/pyclipper
 Adaptions to make it work with version 5 of Angus' Library by Lukas Treyer
-Adaptions to make it work with version 6.2.1 of Agnus' Library by Gregor Ratajc <me@gregorratajc.com>
+Adaptions to make it work with version 6.2.1 of Agnus' Library by Gregor Ratajc
 
 1. you need to install cython (http://www.cython.org/#download)
 2. run "python3.3 setup.py install" (or alike) to build it
-        or to build it in place
-   run "python3 setup.py build_ext --inplace"
 """
 
 SILENT = True
