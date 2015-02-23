@@ -4,14 +4,14 @@ Pyclipper is a wrapper for the C++ translation of [Clipper library by Agnus John
 
 # Install
 
-Installers are available at PyPI: link
+~~Installers are available at PyPI: link~~
 
-Install with `pip` or `easy_install`:
+~~Install with `pip` or `easy_install`:~~
 
         pip install pyclipper
         # or
         easy_install pyclipper
-        
+
 Install from source:
 
         git clone git@github.com:greginvm/pyclipper.git
