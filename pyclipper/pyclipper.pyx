@@ -268,28 +268,31 @@ def point_in_polygon(py_point, py_path):
 # TODO: In the following commented functions Cython generates invalid cpp code
 # that throws the "aggregate has incomplete type and cannot be defined" when
 # compiling.
-"""
 def simplify_polygon(py_path, PolyFillType fill_type=pftEvenOdd):
-    cdef Paths solution
+    raise NotImplementedError()
+    """cdef Paths solution
     SimplifyPolygon(_to_clipper_path(py_path), solution, fill_type)
-    return _from_clipper_paths(solution)
+    return _from_clipper_paths(solution)"""
 
 def simplify_polygons(py_paths, PolyFillType fill_type=pftEvenOdd):
-    cdef Paths solution
+    raise NotImplementedError()
+    """cdef Paths solution
     SimplifyPolygons(_to_clipper_paths(py_paths), solution, fill_type)
-    return _from_clipper_paths(solution)
+    return _from_clipper_paths(solution)"""
 
 def clean_polygon(py_path, double distance):
-    cdef Path solution
+    raise NotImplementedError()
+    """cdef Path solution
     cdef Path path = _to_clipper_path(py_path)
     CleanPolygon(path, solution, distance)
-    return _from_clipper_path(solution)
+    return _from_clipper_path(solution)"""
 
 def clean_polygons(py_paths, double distance=1.415):
-    cdef Paths solution
+    raise NotImplementedError()
+    """cdef Paths solution
     CleanPolygons(_to_clipper_paths(py_paths), solution, distance)
-    return _from_clipper_paths(solution)
-"""
+    return _from_clipper_paths(solution)"""
+
 
 def minkowski_sum(py_path_pattern, py_path, bint path_is_closed):
     cdef Paths solution
@@ -317,13 +320,13 @@ def minkowski_diff(py_path_1, py_path_2):
 
 # TODO: Add _to_clipper_polytree for the following 3 functions
 def polytree_to_paths(py_poly_node):
-    pass
+    raise NotImplementedError()
 
 def closed_paths_from_polytree(py_poly_node):
-    pass
+    raise NotImplementedError()
 
 def open_paths_from_polytree(py_poly_node):
-    pass
+    raise NotImplementedError()
 
 # TODO: This 2 functions are probably not useful - besides reversing it has to
 # convert paths twice, it might be better if developer does this
