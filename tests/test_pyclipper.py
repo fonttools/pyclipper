@@ -152,10 +152,12 @@ class TestPyclipperOffsetAddPaths(unittest.TestCase):
 
     def test_properties(self):
         for prop in ('miter_limit', 'arc_tolerance'):
-            setattr(self.pc, prop, True)
-            self.assertTrue(getattr(self.pc, prop))
-            setattr(self.pc, prop, False)
-            self.assertFalse(getattr(self.pc, prop))
+            val = 2.0
+            setattr(self.pc, prop, val)
+            self.assertEqual(getattr(self.pc, prop), val)
+            val = 1.0
+            setattr(self.pc, prop, val)
+            self.assertEqual(getattr(self.pc, prop), val)
 
     def test_execute(self):
         solution = self.pc.execute(2.0)
