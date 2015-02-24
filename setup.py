@@ -63,43 +63,8 @@ if sys.argv[-1] == 'tag':
 setup(
     name='pyclipper',
     version=version,
-    description='Cython wrapper for the C++ translation of the Angus Johnson\'s Clipper library',
-    long_description="""
-
-Pyclipper is a Cython wrapper exposing public functions and classes of the C++ translation
-of the `Angus Johnson\'s Clipper library (ver. 6.2.1)
-<http://www.angusj.com/delphi/clipper.php>`_.
-
-Pyclipper was tested with Python 2.7 and 3.4.
-
-Source code is available at `GitHub <https://github.com/greginvm/pyclipper>`_.
-
-**About Clipper**
-
-::
-
-  Clipper - an open source freeware library for
-  clipping and offsetting lines and polygons.
-
-  The Clipper library performs line & polygon clipping - intersection, union, difference & exclusive-or,
-  and line & polygon offsetting. The library is based on Vatti's clipping algorithm.
-
-Source: `Angus Johnson\'s Clipper library
-<http://www.angusj.com/delphi/clipper.php>`_.
-
-**Authors**
-
-- The Clipper library is written by `Angus Johnson <http://www.angusj.com/delphi/clipper.php>`_,
-- This wrapper is written mainly by `Maxime Chalton <https://sites.google.com/site/maxelsbackyard/home/pyclipper>`_,
-- Adaptions to make it work with version 5 written by `Lukas Treyer <http://www.lukastreyer.com>`_,
-- Adaptions to make it work with version 6.2.1 and PyPI package written by `Gregor Ratajc <http://www.gregorratajc.com>`_.
-
-**License**
-
-- Pyclipper is available under `MIT license <http://opensource.org/licenses/MIT>`_.
-- The core Clipper library is available under `Boost Software License <http://www.boost.org/LICENSE_1_0.txt>`_. Freeware for both open source and commercial applications.
-
-    """,
+    description='Cython wrapper for the C++ translation of the Angus Johnson\'s Clipper library (ver. 6.2.1)',
+    long_description="",
     author='Angus Johnson, Maxime Chalton, Lukas Treyer, Gregor Ratajc',
     author_email='me@gregorratajc.com',
     url='https://github.com/greginvm/pyclipper',
