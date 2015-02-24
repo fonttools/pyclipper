@@ -364,7 +364,8 @@ cdef class Pyclipper:
 
     def get_bounds(self):
         cdef IntRect rr = <IntRect> self.thisptr.GetBounds()
-        return PyIntRect(left=rr.left, top=rr.top, right=rr.right, bottom=rr.bottom)
+        return PyIntRect(left=_from_clipper_value(rr.left), top=_from_clipper_value(rr.top),
+                         right=_from_clipper_value(rr.right), bottom=_from_clipper_value(rr.bottom))
 
     def execute(self, ClipType clip_type=ctDifference, PolyFillType subj_fill_type=pftEvenOdd,
                 PolyFillType clip_fill_type=pftEvenOdd):
@@ -503,7 +504,7 @@ cdef Path _to_clipper_path(object polygon):
     return path
 
 cdef IntPoint _to_clipper_point(object py_point):
-    return IntPoint(__to_clipper_value(py_point[0]), __to_clipper_value(py_point[1]))
+    return IntPoint(_to_clipper_value(py_point[0]), _to_clipper_value(py_point[1]))
 
 cdef object _from_clipper_paths(Paths paths):
     polys = []
@@ -521,13 +522,13 @@ cdef object _from_clipper_path(Path path):
     for i in xrange(path.size()):
         point = path[i]
         poly.append([
-            __from_clipper_value(point.X),
-            __from_clipper_value(point.Y)
+            _from_clipper_value(point.X),
+            _from_clipper_value(point.Y)
         ])
     return poly
 
-cdef cInt __to_clipper_value(val):
+cdef cInt _to_clipper_value(val):
     return val * SCALING_FACTOR
 
-cdef double __from_clipper_value(cInt val):
+cdef double _from_clipper_value(cInt val):
     return val / SCALING_FACTOR
