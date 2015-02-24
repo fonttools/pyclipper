@@ -1,5 +1,5 @@
 from __future__ import print_function
-from distutils.core import setup
+from distutils.core import setup, Command
 from distutils.extension import Extension
 
 try:
@@ -18,8 +18,26 @@ ext = Extension("pyclipper",
                 sources=sources,
                 libraries=["stdc++"],
                 language="c++",
-                #define_macros=[('use_int32', 1)]
-                )
+                # define_macros=[('use_int32', 1)]
+)
+
+
+class PyTest(Command):
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        import subprocess
+        import sys
+
+        errno = subprocess.call([sys.executable, 'runtests.py'])
+        raise SystemExit(errno)
+
 
 setup(
     name='pyclipper',
@@ -81,5 +99,7 @@ Source: `Angus Johnson\'s Clipper library
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
     ext_modules=[ext],
-    cmdclass={'build_ext': build_ext},
+    cmdclass={
+        'test': PyTest,
+        'build_ext': build_ext},
 )
