@@ -1,11 +1,8 @@
 """
-Pyclipper is a wrapper for the C++ translation of Agnus Johnson's Clipper library (http://www.angusj.com/delphi/clipper.php)
+Cython wrapper for the C++ translation of the Angus Johnson's Clipper
+library (ver. 6.2.1) (http://www.angusj.com/delphi/clipper.php)
 
-Requires cython
-
-This wrapper is written mainly by Maxime Chalton
-Adaptions to make it work with version 5 by Lukas Treyer
-Adaptions to make it work with version 6.2.1 by Gregor Ratajc
+This wrapper was written by Maxime Chalton, Lukas Treyer and Gregor Ratajc.
 
 """
 
