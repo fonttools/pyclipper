@@ -1,0 +1,4 @@
+include pyclipper/clipper.hpp
+include pyclipper/clipper.cpp
+include pyclipper/pyclipper.cpp
+include pyclipper/extra_defines.hpp

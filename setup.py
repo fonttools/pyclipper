@@ -1,19 +1,85 @@
+from __future__ import print_function
 from distutils.core import setup
 from distutils.extension import Extension
-from Cython.Distutils import build_ext
 
+try:
+    from Cython.Distutils import build_ext
 
-ext = Extension("pyclipper.pyclipper",
-                sources=["pyclipper/pyclipper.pyx", "pyclipper/clipper.cpp"],
-                libraries=["stdc++"],  # "ln", "util" ,"pthread" ,"rt"
-                language="c++",  # this causes Pyrex/Cython to create C++ source
-                library_dirs=["/Library/Python/2.7/site-packages"],
-                include_dirs=["./"]
-)
+    sources = ["pyclipper/pyclipper.pyx", "pyclipper/clipper.cpp"]
+    print("using cython")
+
+except ImportError:
+    from distutils.command.build_ext import build_ext
+
+    sources = ["pyclipper/pyclipper.cpp", "pyclipper/clipper.cpp"]
+    print("not using cython")
+
+ext = Extension("pyclipper",
+                sources=sources,
+                libraries=["stdc++"],
+                language="c++",
+                #define_macros=[('use_int32', 1)]
+                )
 
 setup(
+    name='pyclipper',
+    version='0.4alpha',
+    description='Cython wrapper for the C++ translation of the Angus Johnson\'s Clipper library',
+    long_description="""
+
+Pyclipper is a Cython wrapper exposing public functions and classes of the C++ translation
+of the `Angus Johnson\'s Clipper library (ver. 6.2.1)
+<http://www.angusj.com/delphi/clipper.php>`_.
+
+Pyclipper was tested with Python 2.7 and 3.4.
+
+Source code is available at `GitHub <https://github.com/greginvm/pyclipper>`_.
+
+**About Clipper**
+
+::
+
+  Clipper - an open source freeware library for
+  clipping and offsetting lines and polygons.
+
+  The Clipper library performs line & polygon clipping - intersection, union, difference & exclusive-or,
+  and line & polygon offsetting. The library is based on Vatti's clipping algorithm.
+
+Source: `Angus Johnson\'s Clipper library
+<http://www.angusj.com/delphi/clipper.php>`_.
+
+**Authors**
+
+- The Clipper library is written by `Angus Johnson <http://www.angusj.com/delphi/clipper.php>`_,
+- This wrapper is written mainly by `Maxime Chalton <https://sites.google.com/site/maxelsbackyard/home/pyclipper>`_,
+- Adaptions to make it work with version 5 written by `Lukas Treyer <http://www.lukastreyer.com>`_,
+- Adaptions to make it work with version 6.2.1 and PyPI package written by `Gregor Ratajc <http://www.gregorratajc.com>`_.
+
+**License**
+
+- Pyclipper is available under `MIT license <http://opensource.org/licenses/MIT>`_.
+- The core Clipper library is available under `Boost Software License <http://www.boost.org/LICENSE_1_0.txt>`_. Freeware for both open source and commercial applications.
+
+    """,
+    author='Angus Johnson, Maxime Chalton, Lukas Treyer, Gregor Ratajc',
+    author_email='me@gregorratajc.com',
+    url='https://github.com/greginvm/pyclipper',
+    keywords=[
+        'polygon clipping, polygon intersection, polygon union, polygon offsetting, polygon boolean, polygon, clipping, clipper, vatti'],
+    classifiers=[
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Cython",
+        "Programming Language :: C++",
+        "Environment :: Other Environment",
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "Operating System :: OS Independent",
+        "License :: OSI Approved :: MIT License",
+        "Topic :: Multimedia :: Graphics",
+        "Topic :: Scientific/Engineering :: Mathematics",
+        "Topic :: Software Development :: Libraries :: Python Modules"
+    ],
     ext_modules=[ext],
     cmdclass={'build_ext': build_ext},
 )
-
-
