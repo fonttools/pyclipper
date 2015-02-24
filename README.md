@@ -30,6 +30,10 @@ Cython dependency is optional. Cpp sources generated with Cython are available i
 **From source**
 
         python setup.py install
+        
+**Compile cython source in-place**
+
+        python setup.py build_ext --inplace
 
 # How to use
 
@@ -63,7 +67,8 @@ solution = pc.execute(pyclipper.CT_INTERSECTION, pyclipper.PFT_EVENODD, pyclippe
 
 The Clipper library uses integers instead of floating point values to preserve numerical robustness.
 You can use `pyclipper.SCALING_FACTOR` to scale your values to preserve the desired presision. 
-The default value is `None`, which disables scaling.
+The default value is 1, which disables scaling. This setting only scales polygon vertices coordinates,
+properties like `miterLimit`, `roundPrecision` etc. are not scaled.
 
 For more examples of use see tests.
 
@@ -81,5 +86,5 @@ For more examples of use see tests.
 
 # TODO
 
-- Fix Cython compilation on Windows
+- Fix Cython compilation on Windows. Sources created with Cython on Windows could not be compiled, error: "LINK: error LNK2001: unresolved external symbol initpyx". Used MS Visual Studio 9.0 compiler and Cython 0.22 with Python 2.7.6 (x32) on Windows 8.1 x64.
 - Cover all the namespace methods
