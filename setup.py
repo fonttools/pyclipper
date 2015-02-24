@@ -9,22 +9,21 @@ version = '0.7'
 
 try:
     from Cython.Distutils import build_ext
+    from Cython.Build import cythonize
 
-    sources = ["pyclipper/pyclipper.pyx", "pyclipper/clipper.cpp"]
     print("using cython")
+    ext = cythonize(Extension("pyclipper/pyclipper.pyx", sources=["pyclipper/clipper.cpp"], language="c++"))
 
 except ImportError:
     from distutils.command.build_ext import build_ext
 
-    sources = ["pyclipper/pyclipper.cpp", "pyclipper/clipper.cpp"]
     print("not using cython")
 
-ext = Extension("pyclipper",
-                sources=sources,
-                libraries=["stdc++"],
-                language="c++",
-                # define_macros=[('use_int32', 1)]
-)
+    ext = [Extension("pyclipper",
+                     sources=["pyclipper/pyclipper.cpp", "pyclipper/clipper.cpp"],
+                     language="c++",
+                     # define_macros=[('use_int32', 1)]
+    )]
 
 
 # This command has been borrowed from
@@ -120,7 +119,7 @@ Source: `Angus Johnson\'s Clipper library
         "Topic :: Scientific/Engineering :: Mathematics",
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
-    ext_modules=[ext],
+    ext_modules=ext,
     tests_require=['pytest'],
     cmdclass={
         'test': PyTest,
