@@ -24,6 +24,8 @@ ext = Extension("pyclipper",
 )
 
 
+# This command has been borrowed from
+# http://pytest.org/latest/goodpractises.html
 class PyTest(TestCommand):
     user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
 
