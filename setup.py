@@ -1,8 +1,11 @@
 from __future__ import print_function
 import sys
+import os
 from setuptools import setup
 from setuptools.extension import Extension
 from setuptools.command.test import test as TestCommand
+
+version = '0.7'
 
 try:
     from Cython.Distutils import build_ext
@@ -39,15 +42,28 @@ class PyTest(TestCommand):
         self.test_suite = True
 
     def run_tests(self):
-        #import here, cause outside the eggs aren't loaded
+        # import here, cause outside the eggs aren't loaded
         import pytest
+
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
 
 
+# This command has been borrowed from
+# http://www.pydanny.com/python-dot-py-tricks.html
+if sys.argv[-1] == 'publish':
+    os.system("python setup.py sdist upload")
+    os.system("python setup.py bdist_wheel upload")
+    sys.exit()
+
+if sys.argv[-1] == 'tag':
+    os.system("git tag -a %s -m 'version %s'" % (version, version))
+    os.system("git push --tags")
+    sys.exit()
+
 setup(
     name='pyclipper',
-    version='0.4alpha',
+    version=version,
     description='Cython wrapper for the C++ translation of the Angus Johnson\'s Clipper library',
     long_description="""
 
