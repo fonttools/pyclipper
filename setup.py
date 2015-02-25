@@ -79,7 +79,6 @@ setup(
     name='pyclipper',
     version=version,
     description='Cython wrapper for the C++ translation of the Angus Johnson\'s Clipper library (ver. 6.2.1)',
-    long_description="",
     author='Angus Johnson, Maxime Chalton, Lukas Treyer, Gregor Ratajc',
     author_email='me@gregorratajc.com',
     url='https://github.com/greginvm/pyclipper',
