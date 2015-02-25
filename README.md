@@ -3,7 +3,7 @@
 Pyclipper is a Cython wrapper exposing public functions and classes of the C++ translation
 of the [Angus Johnson's Clipper library (ver. 6.2.1)](http://www.angusj.com/delphi/clipper.php).
 
-Pyclipper was tested with Python 2.7 and 3.4 on Linux. Compilation of .cpp sourcers generated with Cython (on Linux) succeeded on Windows. See TODOs.
+Pyclipper releases were tested with Python 2.7 and 3.4 on Linux (Ubuntu 14.04, x64) and Windows (8.1, x64).
 
 Source code is available on [GitHub](https://github.com/greginvm/pyclipper).
 
@@ -21,19 +21,43 @@ Source code is available on [GitHub](https://github.com/greginvm/pyclipper).
 
 ## Dependencies
 
-Cython dependency is optional. Cpp sources generated with Cython are available in the release branch.
+Cython dependency is optional. Cpp sources generated with Cython are available in releases.
 
-**From PyPI**
+Note on using the `setup.py`:
+
+`setup.py` operates in 2 modes that are based on the presence of the `dev` file in the root of the project.
+
+ - When `dev` is present, Cython will be used to compile the `.pyx` sources. This is the *development mode*
+   (as you get it in the git repository).
+ - When `dev` is absent, C/C++ compiler will be used to compile the `.cpp` sources (that were prepared in
+   in the development mode). This is the distribution mode (as you get it on PyPI).
+
+This way the package can be used without or with an incompatible version of Cython.
+
+The idea comes from [Matt Shannon's bandmat library](https://github.com/MattShannon/bandmat).
+
+## From PyPI
+
+Cython not required.
 
         pip install pyclipper
         
-**From source**
+## From source
+
+Cython required.
+
+Clone the repository:
+
+        git clone git@github.com:greginvm/pyclipper.git
+        
+Install:
 
         python setup.py install
         
-**Compile cython source in-place**
+After every modification of `.pyx` files compile with Cython:
 
         python setup.py build_ext --inplace
+        
 
 # How to use
 
@@ -49,7 +73,6 @@ but in a python way - lowercase and underscores:
 Basic example (based on [Angus Johnson's Clipper library](http://www.angusj.com/delphi/clipper.php)):
 
 ```python
-
 import pyclipper
 
 subj = (
@@ -86,5 +109,4 @@ For more examples of use see tests.
 
 # TODO
 
-- Fix Cython compilation on Windows. Sources created with Cython on Windows could not be compiled, error: "LINK: error LNK2001: unresolved external symbol initpyx". Used MS Visual Studio 9.0 compiler and Cython 0.22 with Python 2.7.6 (x32) on Windows 8.1 x64.
 - Cover all the namespace methods
