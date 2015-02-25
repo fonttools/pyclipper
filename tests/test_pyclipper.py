@@ -71,7 +71,7 @@ class TestNamespaceMethods(unittest.TestCase):
     def test_reverse_path(self):
         solution = pyclipper.reverse_path(PATH_SUBJ_1)
         reversed_path = PATH_SUBJ_1[::-1]
-        for i in xrange(len(PATH_SUBJ_1)):
+        for i in range(len(PATH_SUBJ_1)):
             self.assertEqual(solution[i][0], reversed_path[i][0])
             self.assertEqual(solution[i][1], reversed_path[i][1])
 
@@ -173,7 +173,7 @@ def _do_paths_match(paths_1, paths_2):
         return False
 
     paths_2_lists = [list(_convert_elements_to_list(path)) for path in paths_2]
-    for i in xrange(len(paths_1)):
+    for i in range(len(paths_1)):
         if list(_convert_elements_to_list(paths_1[i])) not in paths_2_lists:
             return False
     return True
