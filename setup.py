@@ -7,17 +7,31 @@ from setuptools.command.test import test as TestCommand
 
 version = '0.7'
 
-try:
+"""
+Note on using the setup.py:
+setup.py operates in 2 modes that are based on the presence of the 'dev' file in the root of the project.
+ - When 'dev' is present, Cython will be used to compile the .pyx sources. This is the development mode
+   (as you get it in the git repository).
+ - When 'dev' is absent, C/C++ compiler will be used to compile the .cpp sources (that were prepared in
+   in the development mode). This is the distribution mode (as you get it on PyPI).
+
+This way the package can be used without or with an incompatible version of Cython.
+
+The idea comes from: https://github.com/MattShannon/bandmat
+"""
+dev_mode = os.path.exists('dev')
+
+if dev_mode:
     from Cython.Distutils import build_ext
 
-    print("using cython")
+    print('Development mode: Compiling Cython modules from .pyx sources.')
     sources = ["pyclipper/pyclipper.pyx", "pyclipper/clipper.cpp"]
 
 
-except ImportError:
+else:
     from distutils.command.build_ext import build_ext
 
-    print("not using cython")
+    print('Distribution mode: Compiling Cython generated .cpp sources.')
     sources = ["pyclipper/pyclipper.cpp", "pyclipper/clipper.cpp"]
 
 ext = Extension("pyclipper",
