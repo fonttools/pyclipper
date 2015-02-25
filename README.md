@@ -93,7 +93,7 @@ You can use `pyclipper.SCALING_FACTOR` to scale your values to preserve the desi
 The default value is 1, which disables scaling. This setting only scales polygon vertices coordinates,
 properties like `miterLimit`, `roundPrecision` etc. are not scaled.
 
-For more examples of use see tests.
+For more examples of use see [tests](tests/test_pyclipper.py) and [Clipper documentation](http://www.angusj.com/delphi/clipper/documentation/Docs/_Body.htm).
 
 # Authors
 
