@@ -255,25 +255,25 @@ class ClipperException(Exception):
 
 #============================= Namespace functions =========
 def Orientation(poly):
-    """ Orientation of a closed path.
+    """ Get orientation of the supplied polygon.
     More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Functions/Orientation.htm
 
     Keyword arguments:
-    poly -- closed path
+    poly -- closed polygon
 
     Returns:
-    True  -- counter-clockwise
-    False -- clockwise
+    True  -- counter-clockwise orientation
+    False -- clockwise orientation
     """
     return <bint>c_Orientation(_to_clipper_path(poly))
 
 
 def Area(poly):
-    """ Area of the supplied polygon.
+    """ Get area of the supplied polygon.
     More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Functions/Area.htm
 
     Keyword arguments:
-    poly -- closed path
+    poly -- closed polygon
 
     Returns:
     Positive number if orientation is True
@@ -284,7 +284,7 @@ def Area(poly):
 
 
 def PointInPolygon(point, poly):
-    """ Determine where does the provided point lie regarding provided polygon.
+    """ Determine where does the point lie regarding the provided polygon.
     More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Functions/PointInPolygon.htm
 
     Keyword arguments:
@@ -292,9 +292,9 @@ def PointInPolygon(point, poly):
     poly  -- closed polygon
 
     Returns:
-    0  -- point is NOT IN polygon
-    -1 -- point is ON polygon
-    1  -- point is IN polygon
+    0  -- point is not in polygon
+    -1 -- point is on polygon
+    1  -- point is in polygon
     """
 
     return <int>c_PointInPolygon(_to_clipper_point(point),
@@ -307,10 +307,10 @@ def SimplifyPolygon(poly, PolyFillType fill_type=pftEvenOdd):
 
     Keyword arguments:
     poly      -- polygon to be simplified
-    fill_type -- PolyFillType used with boolean union operation in simplifying operation
+    fill_type -- PolyFillType used with the boolean union operation
 
     Returns:
-    list of simplified polygons (with one or more polygons)
+    list of simplified polygons (containing one or more polygons)
     """
     cdef Paths out_polys
     c_SimplifyPolygon(_to_clipper_path(poly), out_polys, fill_type)
@@ -323,7 +323,7 @@ def SimplifyPolygons(polys, PolyFillType fill_type=pftEvenOdd):
 
     Keyword arguments:
     polys     -- polygons to be simplified
-    fill_type -- PolyFillType used with boolean union operation in simplifying operation
+    fill_type -- PolyFillType used with the boolean union operation
 
     Returns:
     list of simplified polygons
@@ -338,7 +338,7 @@ def CleanPolygon(poly, double distance=1.415):
     More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Functions/CleanPolygon.htm
 
     Keyword arguments:
-    poly     -- polygon to be clean
+    poly     -- polygon to be cleaned
     distance -- distance on which vertices are removed, see 'More info' (default: approx. sqrt of 2)
 
     Returns:
@@ -366,7 +366,7 @@ def CleanPolygons(polys, double distance=1.415):
 
 
 def MinkowskiSum(pattern, path, bint path_is_closed):
-    """ Performs Minkowski Addition.
+    """ Performs Minkowski Addition of the pattern and path.
     More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Functions/MinkowskiSum.htm
 
     Keyword arguments:
@@ -375,7 +375,7 @@ def MinkowskiSum(pattern, path, bint path_is_closed):
     path_is_closed -- set to True if passed path is closed, False if open
 
     Returns:
-    list of polygons (with one or more polygons)
+    list of polygons (containing one or more polygons)
     """
     cdef Paths solution
     c_MinkowskiSum(_to_clipper_path(pattern),
@@ -387,11 +387,11 @@ def MinkowskiSum(pattern, path, bint path_is_closed):
 
 
 def MinkowskiSum2(pattern, paths, bint path_is_closed):
-    """ Performs Minkowski Addition.
+    """ Performs Minkowski Addition of the pattern and paths.
     More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Functions/MinkowskiSum.htm
 
     Keyword arguments:
-    pattern        -- polygon whose points are added to the set of paths
+    pattern        -- polygon whose points are added to the paths
     paths          -- open or closed paths
     path_is_closed -- set to True if passed paths are closed, False if open
 
@@ -429,7 +429,7 @@ def PolyTreeToPaths(poly_node):
     More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Functions/PolyTreeToPaths.htm
 
     Keyword arguments:
-    py_poly_node -- PyPolyNode
+    py_poly_node -- PyPolyNode to be filtered
 
     Returns:
     list of paths
@@ -444,7 +444,7 @@ def ClosedPathsFromPolyTree(poly_node):
     More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Functions/ClosedPathsFromPolyTree.htm
 
     Keyword arguments:
-    py_poly_node -- PyPolyNode
+    py_poly_node -- PyPolyNode to be filtered
 
     Returns:
     list of closed paths
@@ -460,7 +460,7 @@ def OpenPathsFromPolyTree(poly_node):
     More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Functions/OpenPathsFromPolyTree.htm
 
     Keyword arguments:
-    py_poly_node -- PyPolyNode
+    py_poly_node -- PyPolyNode to be filtered
 
     Returns:
     list of open paths
@@ -499,7 +499,7 @@ def ReversePaths(paths):
     paths -- paths to be reversed
 
     Returns:
-    reversed paths
+    list if reversed paths
     """
     cdef Paths c_paths = _to_clipper_paths(paths)
     c_ReversePaths(c_paths)
@@ -514,17 +514,17 @@ cdef class Pyclipper:
     """
     cdef Clipper *thisptr  # hold a C++ instance which we're wrapping
     def __cinit__(self):
-        """ Creates an instance of the Pyclipper class. InitOptions from the Clipper class
+        """ Creates an instance of the Clipper class. InitOptions from the Clipper class
         are substituted with separate properties.
 
         More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/Clipper/Methods/Constructor.htm
         """
 
-        log_action("Creating a Clipper")
+        log_action("Creating a Clipper instance")
         self.thisptr = new Clipper()
 
     def __dealloc__(self):
-        log_action("Deleting a Clipper")
+        log_action("Deleting the Clipper instance")
         del self.thisptr
 
     def AddPath(self, path, PolyType poly_type, closed=True):
@@ -533,14 +533,14 @@ cdef class Pyclipper:
 
         Keyword arguments:
         path      -- path to be added
-        poly_type -- type of added path - subject or clip
-        closed    -- True if added path is closed, False if open
+        poly_type -- type of the added path - subject or clip
+        closed    -- True if the added path is closed, False if open
 
-        Return:
+        Returns:
         True -- path is valid for clipping and was added
 
         Raises:
-        ClipperException -- path is invalid for clipping and was not added
+        ClipperException -- if path is invalid for clipping
         """
         cdef Path c_path = _to_clipper_path(path)
         cdef bint result = <bint> self.thisptr.AddPath(c_path, poly_type, <bint> closed)
@@ -557,11 +557,11 @@ cdef class Pyclipper:
         poly_type -- type of added paths - subject or clip
         closed    -- True if added paths are closed, False if open
 
-        Return:
-        True -- all paths are valid for clipping and were added
+        Returns:
+        True -- all or some paths are valid for clipping and were added
 
         Raises:
-        ClipperException -- one or more paths are invalid for clipping and were not added
+        ClipperException -- all paths are invalid for clipping
         """
         cdef Paths c_paths = _to_clipper_paths(paths)
         cdef bint result = <bint> self.thisptr.AddPaths(c_paths, poly_type, <bint> closed)
@@ -570,13 +570,13 @@ cdef class Pyclipper:
         return result
 
     def Clear(self):
-        """ Removes any existing subject and clip polygons.
+        """ Removes all subject and clip polygons.
         More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/ClipperBase/Methods/Clear.htm
         """
         self.thisptr.Clear()
 
     def GetBounds(self):
-        """ Returns an axis-aligned bounding rectangle of all added polygons.
+        """ Returns an axis-aligned bounding rectangle that bounds all added polygons.
         More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/ClipperBase/Methods/GetBounds.htm
 
         Returns:
@@ -592,7 +592,7 @@ cdef class Pyclipper:
         More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/Clipper/Methods/Execute.htm
 
         Keyword arguments:
-        clip_type      -- type of clipping operation
+        clip_type      -- type of the clipping operation
         subj_fill_type -- fill rule of subject paths
         clip_fill_type -- fill rule of clip paths
 
@@ -615,7 +615,7 @@ cdef class Pyclipper:
         More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/Clipper/Methods/Execute.htm
 
         Keyword arguments:
-        clip_type      -- type of clipping operation
+        clip_type      -- type of the clipping operation
         subj_fill_type -- fill rule of subject paths
         clip_fill_type -- fill rule of clip paths
 
@@ -671,21 +671,21 @@ cdef class PyclipperOffset:
     cdef ClipperOffset *thisptr
 
     def __cinit__(self, double miter_limit=2.0, double arc_tolerance=0.25):
-        """ Creates an instance of the PyclipperOffset class.
+        """ Creates an instance of the ClipperOffset class.
 
         More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/ClipperOffset/Methods/Constructor.htm
         """
-        log_action("Creating a ClipperOffset")
+        log_action("Creating an ClipperOffset instance")
         self.thisptr = new ClipperOffset()
         self.thisptr.MiterLimit = miter_limit
         self.thisptr.ArcTolerance = arc_tolerance
 
     def __dealloc__(self):
-        log_action("Deleting a ClipperOffset")
+        log_action("Deleting the ClipperOffset instance")
         del self.thisptr
 
     def AddPath(self, path, JoinType join_type, EndType end_type):
-        """ Add individual path to ClipperOffset.
+        """ Add individual path.
         More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/ClipperOffset/Methods/AddPath.htm
 
         Keyword arguments:
@@ -697,7 +697,7 @@ cdef class PyclipperOffset:
         self.thisptr.AddPath(c_path, join_type, end_type)
 
     def AddPaths(self, paths, JoinType join_type, EndType end_type):
-        """ Add a list of paths to ClipperOffset.
+        """ Add a list of paths.
         More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/ClipperOffset/Methods/AddPaths.htm
 
         Keyword arguments:
@@ -709,7 +709,7 @@ cdef class PyclipperOffset:
         self.thisptr.AddPaths(c_paths, join_type, end_type)
 
     def Execute(self, double delta):
-        """ Performs the offset operation and returns a list of offsetted paths.
+        """ Performs the offset operation and returns a list of offset paths.
         More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/ClipperOffset/Methods/Execute.htm
 
         Keyword arguments:
@@ -717,14 +717,14 @@ cdef class PyclipperOffset:
                  positive delta expands them.
 
         Returns:
-        list of offsetted paths
+        list of offset paths
         """
         cdef Paths c_solution
         self.thisptr.Execute(c_solution, delta)
         return _from_clipper_paths(c_solution)
 
     def Execute2(self, double delta):
-        """ Performs the offset operation and returns a PyPolyNode with offsetted paths.
+        """ Performs the offset operation and returns a PyPolyNode with offset paths.
         More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/ClipperOffset/Methods/Execute.htm
 
         Keyword arguments:
@@ -739,7 +739,7 @@ cdef class PyclipperOffset:
         return _from_poly_tree(solution)
 
     def Clear(self):
-        """ Clears all paths from ClipperOffset object.
+        """ Clears all paths.
 
         More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/ClipperOffset/Methods/Clear.htm
         """
