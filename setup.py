@@ -93,6 +93,7 @@ setup(
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "Operating System :: OS Independent",
+        "License :: OSI Approved"
         "License :: OSI Approved :: MIT License",
         "Topic :: Multimedia :: Graphics",
         "Topic :: Scientific/Engineering :: Mathematics",
