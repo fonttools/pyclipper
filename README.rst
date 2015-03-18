@@ -128,7 +128,7 @@ value is 1, which disables scaling. This setting only scales coordinates
 of polygon vertices, properties like ``miterLimit``, ``roundPrecision``
 etc. are not scaled.
 
-For more examples of use see ``tests/test_pyclipper.py>`` and
+For more examples of use see ``tests/test_pyclipper.py`` and
 `Clipper
 documentation <http://www.angusj.com/delphi/clipper/documentation/Docs/_Body.htm>`__.
 

@@ -27,7 +27,6 @@ if dev_mode:
     print('Development mode: Compiling Cython modules from .pyx sources.')
     sources = ["pyclipper/pyclipper.pyx", "pyclipper/clipper.cpp"]
 
-
 else:
     from distutils.command.build_ext import build_ext
 
@@ -38,7 +37,7 @@ ext = Extension("pyclipper",
                 sources=sources,
                 language="c++"
                 # define_macros=[('use_int32', 1)]
-)
+                )
 
 
 # This command has been borrowed from
