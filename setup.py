@@ -5,7 +5,7 @@ from setuptools import setup
 from setuptools.extension import Extension
 from setuptools.command.test import test as TestCommand
 
-version = '0.9.beta'
+version = '0.9.b0'
 
 """
 Note on using the setup.py:
@@ -90,7 +90,7 @@ setup(
         "Programming Language :: Cython",
         "Programming Language :: C++",
         "Environment :: Other Environment",
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Operating System :: OS Independent",
         "License :: OSI Approved"
