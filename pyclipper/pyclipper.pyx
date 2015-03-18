@@ -509,7 +509,7 @@ def ReversePaths(paths):
     """
     cdef Paths c_paths = _to_clipper_paths(paths)
     c_ReversePaths(c_paths)
-    _from_clipper_paths(c_paths)
+    return _from_clipper_paths(c_paths)
 
 
 cdef class Pyclipper:
