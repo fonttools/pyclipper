@@ -103,9 +103,6 @@ For more examples of use see [tests](tests/test_pyclipper.py) and [Clipper docum
 
 # License
 
-- ~~Pyclipper is available under [MIT license](http://opensource.org/licenses/MIT)~~. Waiting for confirmation from other authors.
+- Pyclipper is available under [MIT license](http://opensource.org/licenses/MIT).
 - The core Clipper library is available under [Boost Software License](http://www.boost.org/LICENSE_1_0.txt>). Freeware for both open source and commercial applications.
 
-# TODO
-
-- Cover all the namespace methods
