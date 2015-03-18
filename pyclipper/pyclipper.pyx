@@ -434,9 +434,7 @@ def MinkowskiDiff(poly1, poly2):
     return _from_clipper_paths(solution)
 
 
-# TODO: Add _to_clipper_polytree for the following 3 functions
-# TODO: might be better without conversion - just filter it here
-def PolyTreeToPaths(py_poly_node):
+def PolyTreeToPaths(poly_node):
     """ Converts a PyPolyNode to a list of paths.
     More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Functions/PolyTreeToPaths.htm
 
@@ -444,12 +442,14 @@ def PolyTreeToPaths(py_poly_node):
     py_poly_node -- PyPolyNode
 
     Returns:
-    list of polygons
+    list of paths
     """
-    raise NotImplementedError()
+    paths = []
+    _filter_polynode(poly_node, paths, filter_func=None)
+    return paths
 
 
-def ClosedPathsFromPolyTree(py_poly_node):
+def ClosedPathsFromPolyTree(poly_node):
     """ Filters out open paths from the PyPolyNode and returns only closed paths.
     More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Functions/ClosedPathsFromPolyTree.htm
 
@@ -460,10 +460,12 @@ def ClosedPathsFromPolyTree(py_poly_node):
     list of closed paths
     """
 
-    raise NotImplementedError()
+    paths = []
+    _filter_polynode(poly_node, paths, filter_func=lambda pn: not pn.IsOpen)
+    return paths
 
 
-def OpenPathsFromPolyTree(polytree, paths):
+def OpenPathsFromPolyTree(poly_node):
     """ Filters out closed paths from the PyPolyNode and returns only open paths.
     More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Functions/OpenPathsFromPolyTree.htm
 
@@ -473,7 +475,9 @@ def OpenPathsFromPolyTree(polytree, paths):
     Returns:
     list of open paths
     """
-    raise NotImplementedError()
+    paths = []
+    _filter_polynode(poly_node, paths, filter_func=lambda pn: pn.IsOpen)
+    return paths
 
 
 def ReversePath(path):
@@ -774,6 +778,14 @@ cdef class PyclipperOffset:
 
         def __set__(self, value):
             self.thisptr.ArcTolerance = <double> value
+
+
+cdef _filter_polynode(pypolynode, result, filter_func=None):
+    if filter_func is None or filter_func(pypolynode):
+        result.extend(pypolynode.Contour)
+
+    for child in pypolynode.Childs:
+        _filter_polynode(child, result, filter_func)
 
 
 cdef _from_poly_tree(PolyTree &c_polytree):

@@ -61,15 +61,6 @@ class TestNamespaceMethods(unittest.TestCase):
         solution = pyclipper.MinkowskiDiff(PATH_SUBJ_1, PATH_SUBJ_2)
         self.assertGreater(len(solution), 0)
 
-    def test_polytree_to_paths(self):
-        pass
-
-    def test_closed_paths_from_polytree(self):
-        pass
-
-    def test_open_paths_from_polytree(self):
-        pass
-
     def test_reverse_path(self):
         solution = pyclipper.ReversePath(PATH_SUBJ_1)
         reversed_path = PATH_SUBJ_1[::-1]
@@ -81,6 +72,45 @@ class TestNamespaceMethods(unittest.TestCase):
         solution = pyclipper.ReversePaths([PATH_SUBJ_1])
         manualy_reversed = [PATH_SUBJ_1[::-1]]
         self.assertTrue(_do_paths_match(solution, manualy_reversed))
+
+
+class TestPyPolyNode(unittest.TestCase):
+    def setUp(self):
+        tree = pyclipper.PyPolyNode()
+        tree.Contour.append(PATH_CLIP_1)
+        tree.IsOpen = True
+
+        child = pyclipper.PyPolyNode()
+        child.IsOpen = False
+        child.Parent = tree
+        child.Contour.append(PATH_SUBJ_1)
+        tree.Childs.append(child)
+
+        child = pyclipper.PyPolyNode()
+        child.IsOpen = True
+        child.Parent = tree
+        child.Contour.append(PATH_SUBJ_2)
+        tree.Childs.append(child)
+
+        child2 = pyclipper.PyPolyNode()
+        child2.IsOpen = False
+        child2.Parent = child
+        child2.Contour.append(PATTERN)
+        child.Childs.append(child2)
+
+        self.tree = tree
+
+    def test_polytree_to_paths(self):
+        paths = pyclipper.PolyTreeToPaths(self.tree)
+        self.assertEqual(len(paths), 4)
+
+    def test_closed_paths_from_polytree(self):
+        paths = pyclipper.ClosedPathsFromPolyTree(self.tree)
+        self.assertEqual(len(paths), 2)
+
+    def test_open_paths_from_polytree(self):
+        paths = pyclipper.OpenPathsFromPolyTree(self.tree)
+        self.assertEqual(len(paths), 2)
 
 
 class TestPyclipperAddPaths(unittest.TestCase):
