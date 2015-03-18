@@ -73,6 +73,23 @@ class TestNamespaceMethods(unittest.TestCase):
         manualy_reversed = [PATH_SUBJ_1[::-1]]
         self.assertTrue(_do_paths_match(solution, manualy_reversed))
 
+    def test_simplify_polygon(self):
+        solution = pyclipper.SimplifyPolygon(PATH_SUBJ_1)
+        self.assertEqual(len(solution), 1)
+
+    def test_simplify_polygons(self):
+        solution = pyclipper.SimplifyPolygons([PATH_SUBJ_1])
+        self.assertEqual(len(solution), 1)
+
+    def test_clean_polygon(self):
+        solution = pyclipper.CleanPolygon(PATH_CLIP_1)
+        self.assertEqual(len(solution), len(PATH_CLIP_1))
+
+    def test_clean_polygons(self):
+        solution = pyclipper.CleanPolygons([PATH_CLIP_1])
+        self.assertEqual(len(solution), 1)
+        self.assertEqual(len(solution[0]), len(PATH_CLIP_1))
+
 
 class TestPyPolyNode(unittest.TestCase):
     def setUp(self):
