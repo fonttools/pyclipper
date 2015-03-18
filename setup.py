@@ -5,7 +5,7 @@ from setuptools import setup
 from setuptools.extension import Extension
 from setuptools.command.test import test as TestCommand
 
-version = '0.9b0'
+version = '0.9.1b0'
 
 """
 Note on using the setup.py:
@@ -93,7 +93,7 @@ setup(
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Operating System :: OS Independent",
-        "License :: OSI Approved"
+        "License :: OSI Approved",
         "License :: OSI Approved :: MIT License",
         "Topic :: Multimedia :: Graphics",
         "Topic :: Scientific/Engineering :: Mathematics",
