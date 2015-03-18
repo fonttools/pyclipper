@@ -187,7 +187,7 @@ class TestPyclipperExecute(unittest.TestCase):
         pyclipper.SCALING_FACTOR = 1000
 
         pc2 = pyclipper.Pyclipper()
-        added = 0.9
+        added = 0.01
         pc2.AddPath(_add_to_vertices(PATH_CLIP_1, added), pyclipper.PT_CLIP)
         pc2.AddPaths([_add_to_vertices(PATH_SUBJ_1, added), _add_to_vertices(PATH_SUBJ_2, added)],
                      pyclipper.PT_SUBJECT)
@@ -195,7 +195,7 @@ class TestPyclipperExecute(unittest.TestCase):
         solution2 = pc2.Execute(pyclipper.CT_INTERSECTION,
                                 pyclipper.PFT_EVENODD, pyclipper.PFT_EVENODD)
 
-        self.assertTrue(_do_paths_match(solution1, solution2))
+        self.assertFalse(_do_paths_match(solution1, solution2))
 
     def test_execute2(self):
         solution = self.pc.Execute2(pyclipper.CT_INTERSECTION,
