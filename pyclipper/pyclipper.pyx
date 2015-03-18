@@ -866,4 +866,4 @@ cdef cInt _to_clipper_value(val):
 
 
 cdef double _from_clipper_value(cInt val):
-    return val / SCALING_FACTOR
+    return val / <double>SCALING_FACTOR

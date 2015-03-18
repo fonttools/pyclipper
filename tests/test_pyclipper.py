@@ -185,8 +185,13 @@ class TestPyclipperExecute(unittest.TestCase):
                                     pyclipper.PFT_EVENODD, pyclipper.PFT_EVENODD)
 
         pyclipper.SCALING_FACTOR = 1000
+
         pc2 = pyclipper.Pyclipper()
-        _add_test_paths_to_pyclipper(pc2)
+        added = 0.9
+        pc2.AddPath(_add_to_vertices(PATH_CLIP_1, added), pyclipper.PT_CLIP)
+        pc2.AddPaths([_add_to_vertices(PATH_SUBJ_1, added), _add_to_vertices(PATH_SUBJ_2, added)],
+                     pyclipper.PT_SUBJECT)
+
         solution2 = pc2.Execute(pyclipper.CT_INTERSECTION,
                                 pyclipper.PFT_EVENODD, pyclipper.PFT_EVENODD)
 
@@ -243,6 +248,14 @@ def _add_test_paths_to_pyclipper(pc):
 
 def _add_test_paths_to_pyclipperoffset(pc):
     pc.AddPath(PATH_CLIP_1, pyclipper.JT_ROUND, pyclipper.ET_CLOSEDPOLYGON)
+
+
+def _add_to_vertices(path, value):
+    path2 = []
+    for vertex in path:
+        path2.append((vertex[0] + value, vertex[1] + value))
+
+    return path2
 
 
 def run_tests():
