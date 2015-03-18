@@ -61,14 +61,13 @@ After every modification of `.pyx` files compile with Cython:
 
 # How to use
 
-This wrapper library tries to follow naming convention of the original library 
-but in a python way - lowercase and underscores:
+This wrapper library tries to follow naming conventions of the original library.
 
-- `ClipperLib` namespace is represented by `pyclipper` module,
+- `ClipperLib` namespace is represented by the `pyclipper` module,
 - classes `Clipper` and `ClipperOffset` -> `Pyclipper` and `Pyclipper` and `PyclipperOffset`,
-- `Clipper.Execute` becomes `Pyclipper.execute`,
-- `SimplifyPolygons` becomes `simplify_polygons`,
-- when Clipper is overloading functions with the same number of parameters but different types (eg. `Clipper.Execute`, one function returns polygon the other polytree) that becomes `Pyclipper.execute` and `Pyclipper.execute2`.
+- when Clipper is overloading functions with different number of parameters or different types 
+  (eg. `Clipper.Execute`, one function fills a list of paths the other PolyTree) that 
+  becomes `Pyclipper.Execute` and `Pyclipper.Execute2`.
 
 Basic example (based on [Angus Johnson's Clipper library](http://www.angusj.com/delphi/clipper.php)):
 
@@ -82,15 +81,15 @@ subj = (
 clip = ((190, 210), (240, 210), (240, 130), (190, 130))
 
 pc = pyclipper.Pyclipper()
-pc.add_path(clip, pyclipper.PT_CLIP, True)
-pc.add_paths(subj, pyclipper.PT_SUBJ, True)
+pc.AddPath(clip, pyclipper.PT_CLIP, True)
+pc.AddPaths(subj, pyclipper.PT_SUBJ, True)
 
-solution = pc.execute(pyclipper.CT_INTERSECTION, pyclipper.PFT_EVENODD, pyclipper.PFT_EVENODD) 
+solution = pc.Execute(pyclipper.CT_INTERSECTION, pyclipper.PFT_EVENODD, pyclipper.PFT_EVENODD) 
 ```        
 
 The Clipper library uses integers instead of floating point values to preserve numerical robustness.
 You can use `pyclipper.SCALING_FACTOR` to scale your values to preserve the desired presision. 
-The default value is 1, which disables scaling. This setting only scales polygon vertices coordinates,
+The default value is 1, which disables scaling. This setting only scales coordinates of polygon vertices,
 properties like `miterLimit`, `roundPrecision` etc. are not scaled.
 
 For more examples of use see [tests](tests/test_pyclipper.py) and [Clipper documentation](http://www.angusj.com/delphi/clipper/documentation/Docs/_Body.htm).
@@ -98,7 +97,7 @@ For more examples of use see [tests](tests/test_pyclipper.py) and [Clipper docum
 # Authors
 
 - The Clipper library is written by [Angus Johnson](http://www.angusj.com/delphi/clipper.php),
-- This wrapper is written mainly by [Maxime Chalton](https://sites.google.com/site/maxelsbackyard/home/pyclipper>),
+- This wrapper was initially written by [Maxime Chalton](https://sites.google.com/site/maxelsbackyard/home/pyclipper>),
 - Adaptions to make it work with version 5 written by [Lukas Treyer](http://www.lukastreyer.com),
 - Adaptions to make it work with version 6.2.1 and PyPI package written by [Gregor Ratajc](http://www.gregorratajc.com).
 
