@@ -88,6 +88,17 @@ After every modification of ``.pyx`` files compile with Cython:
         python setup.py build_ext --inplace
         
 
+Clippers' preprocessor directives
+---------------------------------
+Clipper can be compiled with the following preprocessor directives: ``use_int32``, ``use_xyz``, ``use_lines`` and ``use_deprecated``. 
+Among these the ``use_int32`` and ``use_lines`` can be used with Pyclipper.
+
+-  ``use_int32`` - when enabled 32bit ints are used instead of 64bit ints. This improve performance but coordinate values are limited to the range +/- 46340. In Pyclipper this directive is **disabled** by default.
+
+-  ``use_lines`` - enables line clipping. Adds a very minor cost to performance. In Pyclipper this directive is **enabled** by default (since version 0.9.2b0).
+
+In case you would want to change these settings, clone this repository and change the ``define_macros`` collection (``setup.py``, pyclipper extension definition). Add a set like ``('use_int32', 1)`` to enable the directive, or remove the set to disable it. After that you need to rebuild the package.
+
 How to use
 ==========
 
