@@ -33,10 +33,15 @@ else:
     print('Distribution mode: Compiling Cython generated .cpp sources.')
     sources = ["pyclipper/pyclipper.cpp", "pyclipper/clipper.cpp"]
 
+
 ext = Extension("pyclipper",
                 sources=sources,
-                language="c++"
-                # define_macros=[('use_int32', 1)]
+                language="c++",
+                # define extra macro definitions that are used by clipper
+                # Available definitions that can be used with pyclipper:
+                # use_lines, use_int32
+                # See pyclipper/clipper.hpp
+                define_macros=[('use_lines', 1)]
                 )
 
 
