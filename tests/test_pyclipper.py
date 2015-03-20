@@ -201,6 +201,21 @@ class TestPyclipperExecute(unittest.TestCase):
         solution = self.pc.Execute2(pyclipper.CT_INTERSECTION,
                                     pyclipper.PFT_EVENODD, pyclipper.PFT_EVENODD)
         self.assertIsInstance(solution, pyclipper.PyPolyNode)
+        self.check_pypolynode(solution)
+
+    def check_pypolynode(self, node):
+        self.assertTrue(len(node.Contour) is 0 or len(node.Contour) > 2)
+
+        # check vertex coordinate, should not be an iterable (in that case
+        # that means that node.Contour is a list of paths, should be path
+        if node.Contour:
+            self.assertFalse(hasattr(node.Contour[0][0], '__iter__'))
+
+        for child in node.Childs:
+            self.check_pypolynode(child)
+
+
+
 
 
 class TestPyclipperOffsetAddPaths(unittest.TestCase):
