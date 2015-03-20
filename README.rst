@@ -164,3 +164,10 @@ License
    License <http://www.boost.org/LICENSE_1_0.txt>`__. Freeware for both
    open source and commercial applications.
 
+Changelog
+=========
+
+0.9.2b0
+-------
+-  enable preprocessor directive ``use_lines`` by default,
+-  bug fix: PyPolyNode.Contour that is now one path and not a list of paths as it was previously.
