@@ -5,7 +5,7 @@ from setuptools import setup
 from setuptools.extension import Extension
 from setuptools.command.test import test as TestCommand
 
-version = '0.9.1b0'
+version = '0.9.2b0'
 
 """
 Note on using the setup.py:
