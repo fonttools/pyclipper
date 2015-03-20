@@ -772,7 +772,7 @@ cdef class PyclipperOffset:
 
 cdef _filter_polynode(pypolynode, result, filter_func=None):
     if filter_func is None or filter_func(pypolynode):
-        result.extend(pypolynode.Contour)
+        result.append(pypolynode.Contour)
 
     for child in pypolynode.Childs:
         _filter_polynode(child, result, filter_func)
@@ -801,7 +801,7 @@ cdef _node_walk(PolyNode *c_polynode, object parent):
     cdef object isopen = <bint>c_polynode.IsOpen()
     py_node.IsOpen = isopen
 
-    py_node.Contour.append(_from_clipper_path(c_polynode.Contour))
+    py_node.Contour = _from_clipper_path(c_polynode.Contour)
 
     # kids
     cdef PolyNode *cNode
