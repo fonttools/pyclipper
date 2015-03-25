@@ -771,7 +771,7 @@ cdef class PyclipperOffset:
 
 
 cdef _filter_polynode(pypolynode, result, filter_func=None):
-    if filter_func is None or filter_func(pypolynode):
+    if (filter_func is None or filter_func(pypolynode)) and len(pypolynode.Contour) > 0:
         result.append(pypolynode.Contour)
 
     for child in pypolynode.Childs:
