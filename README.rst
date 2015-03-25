@@ -166,6 +166,11 @@ License
 Changelog
 =========
 
+0.9.3b0
+-------
+-  Applied SCALING_FACTOR to the relevant function parameters and class properties
+-  Refactored tests
+
 0.9.2b1
 -------
 -  bug fix: Fix setting of the PyPolyNode.IsHole property
