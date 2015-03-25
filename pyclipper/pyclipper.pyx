@@ -7,7 +7,15 @@ This wrapper was written by Maxime Chalton, Lukas Treyer and Gregor Ratajc.
 """
 
 SILENT = True
+
+"""
+Clipper library operates with integer coordinates. To preserve the degree of
+floating point precision use the SCALING_FACTOR with which all the coordinates and
+relevant properties will be multiplied before used with the Clipper library.
+
+More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/ClipperOffset/Properties/ArcTolerance.htm"""
 SCALING_FACTOR = 1
+
 
 def log_action(description):
     if not SILENT:
@@ -345,7 +353,7 @@ def CleanPolygon(poly, double distance=1.415):
     cleaned polygon
     """
     cdef Path out_poly
-    c_CleanPolygon(_to_clipper_path(poly), out_poly, distance)
+    c_CleanPolygon(_to_clipper_path(poly), out_poly, _to_clipper_double(distance))
     return _from_clipper_path(out_poly)
 
 
@@ -361,7 +369,7 @@ def CleanPolygons(polys, double distance=1.415):
     list of cleaned polygons
     """
     cdef Paths out_polys = _to_clipper_paths(polys)
-    c_CleanPolygons(out_polys, distance)
+    c_CleanPolygons(out_polys, _to_clipper_double(distance))
     return _from_clipper_paths(out_polys)
 
 
@@ -677,8 +685,8 @@ cdef class PyclipperOffset:
         """
         log_action("Creating an ClipperOffset instance")
         self.thisptr = new ClipperOffset()
-        self.thisptr.MiterLimit = miter_limit
-        self.thisptr.ArcTolerance = arc_tolerance
+        self.MiterLimit = miter_limit
+        self.ArcTolerance = arc_tolerance
 
     def __dealloc__(self):
         log_action("Deleting the ClipperOffset instance")
@@ -720,7 +728,7 @@ cdef class PyclipperOffset:
         list of offset paths
         """
         cdef Paths c_solution
-        self.thisptr.Execute(c_solution, delta)
+        self.thisptr.Execute(c_solution, _to_clipper_double(delta))
         return _from_clipper_paths(c_solution)
 
     def Execute2(self, double delta):
@@ -735,7 +743,7 @@ cdef class PyclipperOffset:
         PyPolyNode
         """
         cdef PolyTree solution
-        self.thisptr.Execute(solution, delta)
+        self.thisptr.Execute(solution, _to_clipper_double(delta))
         return _from_poly_tree(solution)
 
     def Clear(self):
@@ -764,10 +772,10 @@ cdef class PyclipperOffset:
         More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/ClipperOffset/Properties/ArcTolerance.htm
         """
         def __get__(self):
-            return <double> self.thisptr.ArcTolerance
+            return _from_clipper_value(<double> self.thisptr.ArcTolerance)
 
         def __set__(self, value):
-            self.thisptr.ArcTolerance = <double> value
+            self.thisptr.ArcTolerance = _to_clipper_double(<double> value)
 
 
 cdef _filter_polynode(pypolynode, result, filter_func=None):
@@ -834,7 +842,7 @@ cdef Path _to_clipper_path(object polygon):
 
 
 cdef IntPoint _to_clipper_point(object py_point):
-    return IntPoint(_to_clipper_value(py_point[0]), _to_clipper_value(py_point[1]))
+    return IntPoint(_to_clipper_int(py_point[0]), _to_clipper_int(py_point[1]))
 
 
 cdef object _from_clipper_paths(Paths paths):
@@ -861,9 +869,13 @@ cdef object _from_clipper_path(Path path):
     return poly
 
 
-cdef cInt _to_clipper_value(val):
+cdef cInt _to_clipper_int(val):
     return val * SCALING_FACTOR
 
 
-cdef double _from_clipper_value(cInt val):
+cdef double _to_clipper_double(val):
+    return val * <double>SCALING_FACTOR
+
+
+cdef double _from_clipper_value(val):
     return val / <double>SCALING_FACTOR
