@@ -169,5 +169,9 @@ Changelog
 
 0.9.2b0
 -------
+-  bug fix: Fix setting of the PyPolyNode.IsHole property
+
+0.9.2b0
+-------
 -  enable preprocessor directive ``use_lines`` by default,
 -  bug fix: PyPolyNode.Contour that is now one path and not a list of paths as it was previously.
