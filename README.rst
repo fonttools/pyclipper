@@ -167,7 +167,7 @@ License
 Changelog
 =========
 
-0.9.2b0
+0.9.2b1
 -------
 -  bug fix: Fix setting of the PyPolyNode.IsHole property
 
