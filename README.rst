@@ -135,9 +135,8 @@ library <http://www.angusj.com/delphi/clipper.php>`__):
 The Clipper library uses integers instead of floating point values to
 preserve numerical robustness. You can use ``pyclipper.SCALING_FACTOR``
 to scale your values to preserve the desired presision. The default
-value is 1, which disables scaling. This setting only scales coordinates
-of polygon vertices, properties like ``miterLimit``, ``roundPrecision``
-etc. are not scaled.
+value is 1, which disables scaling. Scaling factor is also applied to the relevant
+parameters.
 
 For more examples of use see ``tests/test_pyclipper.py`` and
 `Clipper
