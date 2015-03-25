@@ -796,7 +796,7 @@ cdef _node_walk(PolyNode *c_polynode, object parent):
     py_node.Parent = parent
 
     cdef object ishole = <bint>c_polynode.IsHole()
-    py_node.Is_hole = ishole
+    py_node.IsHole = ishole
 
     cdef object isopen = <bint>c_polynode.IsOpen()
     py_node.IsOpen = isopen
