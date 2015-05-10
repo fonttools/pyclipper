@@ -9,7 +9,9 @@ Pyclipper releases were tested with Python 2.7 and 3.4 on Linux (Ubuntu
 14.04, x64) and Windows (8.1, x64).
 
 Source code is available on
-`GitHub <https://github.com/greginvm/pyclipper>`__.
+`GitHub <https://github.com/greginvm/pyclipper>`__. The package is published on 
+`PyPI <https://pypi.python.org/pypi/pyclipper>`__.
+
 
 About Clipper
 -------------
