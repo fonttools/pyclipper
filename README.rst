@@ -41,10 +41,10 @@ Note on using the ``setup.py``:
 ``setup.py`` operates in 2 modes that are based on the presence of the
 ``dev`` file in the root of the project.
 
--  When ``dev`` is present, Cython will be used to compile the ``.pyx``
+-  When ``dev`` is **present**, Cython will be used to compile the ``.pyx``
    sources. This is the *development mode* (as you get it in the git
    repository).
--  When ``dev`` is absent, C/C++ compiler will be used to compile the
+-  When ``dev`` is **absent**, C/C++ compiler will be used to compile the
    ``.cpp`` sources (that were prepared in in the development mode).
    This is the distribution mode (as you get it on PyPI).
 
@@ -108,7 +108,7 @@ This wrapper library tries to follow naming conventions of the original
 library.
 
 -  ``ClipperLib`` namespace is represented by the ``pyclipper`` module,
--  classes ``Clipper`` and ``ClipperOffset`` -> ``Pyclipper`` and
+-  classes ``Clipper`` and ``ClipperOffset`` -> 
    ``Pyclipper`` and ``PyclipperOffset``,
 -  when Clipper is overloading functions with different number of
    parameters or different types (eg. ``Clipper.Execute``, one function
