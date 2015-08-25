@@ -130,7 +130,7 @@ library <http://www.angusj.com/delphi/clipper.php>`__):
 
     pc = pyclipper.Pyclipper()
     pc.AddPath(clip, pyclipper.PT_CLIP, True)
-    pc.AddPaths(subj, pyclipper.PT_SUBJ, True)
+    pc.AddPaths(subj, pyclipper.PT_SUBJECT, True)
 
     solution = pc.Execute(pyclipper.CT_INTERSECTION, pyclipper.PFT_EVENODD, pyclipper.PFT_EVENODD) 
 
