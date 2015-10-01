@@ -266,6 +266,21 @@ class TestPyclipperExecute(TestCase):
 
         self.assertTrue(_do_solutions_match(manualy_scaled, scaled_solution, test_factor))
 
+    def test_exact_results(self):
+        """
+        Test whether coordinates passed into the library are returned exactly, if they are not affected by the operation.
+        """
+        
+        pc = pyclipper.Pyclipper()
+        
+        # Some large triangle.
+        path = [[[0, 1], [0, 0], [15 ** 15, 0]]]
+
+        pc.AddPaths(path, pyclipper.PT_SUBJECT, True)
+        result = pc.Execute(pyclipper.PT_CLIP, pyclipper.PFT_EVENODD, pyclipper.PFT_EVENODD)
+        
+        assert result == path
+
     def check_pypolynode(self, node):
         self.assertTrue(len(node.Contour) is 0 or len(node.Contour) > 2)
 
