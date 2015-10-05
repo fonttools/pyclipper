@@ -135,14 +135,9 @@ library <http://www.angusj.com/delphi/clipper.php>`__):
     solution = pc.Execute(pyclipper.CT_INTERSECTION, pyclipper.PFT_EVENODD, pyclipper.PFT_EVENODD) 
 
 The Clipper library uses integers instead of floating point values to
-preserve numerical robustness. You can use ``pyclipper.SCALING_FACTOR``
-to scale your values to preserve the desired presision. The default
-value is 1, which disables scaling. Scaling factor is also applied to the relevant
-parameters.
+preserve numerical robustness. You will need to scale coordinates using an appropriate factor, if you want to used fractional coordinates using the functions `scale_to_clipper()` and `scale_from_clipper()`.
 
-For more examples of use see ``tests/test_pyclipper.py`` and
-`Clipper
-documentation <http://www.angusj.com/delphi/clipper/documentation/Docs/_Body.htm>`__.
+For an explanation, see https://github.com/greginvm/pyclipper/wiki/Deprecating-SCALING_FACTOR.
 
 Authors
 =======
