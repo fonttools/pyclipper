@@ -351,7 +351,7 @@ def CleanPolygon(poly, double distance=1.415):
     cleaned polygon
     """
     cdef Path out_poly
-    c_CleanPolygon(_to_clipper_path(poly), out_poly, _to_clipper_double(distance))
+    c_CleanPolygon(_to_clipper_path(poly), out_poly, distance)
     return _from_clipper_path(out_poly)
 
 
@@ -367,7 +367,7 @@ def CleanPolygons(polys, double distance=1.415):
     list of cleaned polygons
     """
     cdef Paths out_polys = _to_clipper_paths(polys)
-    c_CleanPolygons(out_polys, _to_clipper_double(distance))
+    c_CleanPolygons(out_polys, distance)
     return _from_clipper_paths(out_polys)
 
 
@@ -591,8 +591,8 @@ cdef class Pyclipper:
         _check_scaling_factor()
         
         cdef IntRect rr = <IntRect> self.thisptr.GetBounds()
-        return PyIntRect(left=_from_clipper_value(rr.left), top=_from_clipper_value(rr.top),
-                         right=_from_clipper_value(rr.right), bottom=_from_clipper_value(rr.bottom))
+        return PyIntRect(left=rr.left, top=rr.top,
+                         right=rr.right, bottom=rr.bottom)
 
     def Execute(self, ClipType clip_type,
                 PolyFillType subj_fill_type=pftEvenOdd, PolyFillType clip_fill_type=pftEvenOdd):
@@ -728,7 +728,7 @@ cdef class PyclipperOffset:
         list of offset paths
         """
         cdef Paths c_solution
-        self.thisptr.Execute(c_solution, _to_clipper_double(delta))
+        self.thisptr.Execute(c_solution, delta)
         return _from_clipper_paths(c_solution)
 
     def Execute2(self, double delta):
@@ -743,7 +743,7 @@ cdef class PyclipperOffset:
         PyPolyNode
         """
         cdef PolyTree solution
-        self.thisptr.Execute(solution, _to_clipper_double(delta))
+        self.thisptr.Execute(solution, delta)
         return _from_poly_tree(solution)
 
     def Clear(self):
@@ -774,12 +774,12 @@ cdef class PyclipperOffset:
         def __get__(self):
             _check_scaling_factor()
             
-            return _from_clipper_value(<double> self.thisptr.ArcTolerance)
+            return self.thisptr.ArcTolerance
 
         def __set__(self, value):
             _check_scaling_factor()
             
-            self.thisptr.ArcTolerance = _to_clipper_double(<double> value)
+            self.thisptr.ArcTolerance = value
 
 
 cdef _filter_polynode(pypolynode, result, filter_func=None):
@@ -848,7 +848,7 @@ cdef Path _to_clipper_path(object polygon):
 
 
 cdef IntPoint _to_clipper_point(object py_point):
-    return IntPoint(_to_clipper_int(py_point[0]), _to_clipper_int(py_point[1]))
+    return IntPoint(py_point[0], py_point[1])
 
 
 cdef object _from_clipper_paths(Paths paths):
@@ -870,10 +870,7 @@ cdef object _from_clipper_path(Path path):
     cdef IntPoint point
     for i in xrange(path.size()):
         point = path[i]
-        poly.append([
-            _from_clipper_value(point.X),
-            _from_clipper_value(point.Y)
-        ])
+        poly.append([point.X, point.Y])
     return poly
 
 
@@ -884,15 +881,3 @@ def _check_scaling_factor():
     
     if SCALING_FACTOR != 1:
         _warnings.warn('SCALING_FACTOR is deprecated and it\'s value is ignored. See https://github.com/greginvm/pyclipper/wiki/Deprecating-SCALING_FACTOR for more information.', DeprecationWarning)
-
-
-cdef cInt _to_clipper_int(val):
-    return val * SCALING_FACTOR
-
-
-cdef double _to_clipper_double(val):
-    return val * <double>SCALING_FACTOR
-
-
-cdef double _from_clipper_value(val):
-    return val / <double>SCALING_FACTOR
