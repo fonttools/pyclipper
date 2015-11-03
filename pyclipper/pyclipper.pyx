@@ -26,6 +26,7 @@ import copy as _copy
 import unicodedata as _unicodedata
 import time as _time
 import warnings as _warnings
+import numbers as _numbers
 
 from cython.operator cimport dereference as deref
 
@@ -510,6 +511,54 @@ def ReversePaths(paths):
     cdef Paths c_paths = _to_clipper_paths(paths)
     c_ReversePaths(c_paths)
     return _from_clipper_paths(c_paths)
+
+
+def scale_to_clipper(path_or_paths, scale = 2 ** 31):
+    """
+    Take a path or list of paths with coordinates represented by floats and scale them using the specified factor. This function can be user to convert paths to a representation which is more appropriate for Clipper.
+    
+    Clipper, and thus Pyclipper, uses 64-bit integers to represent coordinates internally. The actual supported range (+/- 2 ** 62) is a bit smaller than the maximal values for this type. To operate on paths which use fractional coordinates, it is necessary to translate them from and to a representation which does not depend on floats. This can be done using this function and it's reverse, `scale_from_clipper()`.
+    
+    For details, see http://www.angusj.com/delphi/clipper/documentation/Docs/Overview/Rounding.htm.
+    
+    For example, to perform a clip operation on two polygons, the arguments to `Pyclipper.AddPath()` need to be wrapped in `scale_to_clipper()` while the return value needs to be converted back with `scale_from_clipper()`:
+    
+    >>> pc = Pyclipper()
+    >>> path = [[0, 0], [1, 0], [1 / 2, (3 / 4) ** (1 / 2)]] # A triangle.
+    >>> clip = [[0, 1 / 3], [1, 1 / 3], [1, 2 / 3], [0, 1 / 3]] # A rectangle.
+    >>> pc.AddPath(scale_to_clipper(path), PT_SUBJECT)
+    >>> pc.AddPath(scale_to_clipper(clip), PT_CLIP)
+    >>> scale_from_clipper(pc.Execute(CT_INTERSECTION))
+    [[[0.6772190444171429, 0.5590730146504939], [0.2383135547861457, 0.41277118446305394], [0.19245008938014507, 0.3333333330228925], [0.8075499106198549, 0.3333333330228925]]]
+    
+    :param path_or_paths: Either a list of paths or a path. A path is a list of tuples of numbers.
+    :param scale: The factor with which to multiply coordinates before converting rounding them to ints. The default will give you a range of +/- 2 ** 31 with a precision of 2 ** -31.
+    """
+    
+    def scale_value(x):
+        if isinstance(x, _numbers.Real):
+            return <cInt>(<double>x * scale)
+        else:
+            return [scale_value(i) for i in x]
+    
+    return scale_value(path_or_paths)
+
+
+def scale_from_clipper(path_or_paths, scale = 2 ** 31):
+    """
+    Take a path or list of paths with coordinates represented by ints and scale them back to a fractional representation. This function does the inverse of `scale_to_clipper()`.
+    
+    :param path_or_paths: Either a list of paths or a path. A path is a list of tuples of numbers.
+    :param scale: The factor by which to divide coordinates when converting them to floats.
+    """
+    
+    def scale_value(x):
+        if isinstance(x, _numbers.Real):
+            return <double>x / scale
+        else:
+            return [scale_value(i) for i in x]
+    
+    return scale_value(path_or_paths)
 
 
 cdef class Pyclipper:

@@ -340,6 +340,57 @@ class TestScalingFactorWarning(TestCase):
             self.pc.AddPaths([PATH_SUBJ_1, PATH_SUBJ_2], poly_type=pyclipper.PT_SUBJECT)
 
 
+class TestScalingFunctions(TestCase):
+    scale = 2 ** 31
+    path = [(0, 0), (1, 1)]
+    paths = [path] * 3
+    
+    def test_value_scale_to(self):
+        value = 0.5
+        res = pyclipper.scale_to_clipper(value, self.scale)
+        
+        assert isinstance(res, int)
+        assert res == int(value * self.scale)
+    
+    def test_value_scale_from(self):
+        value = 1000000000000
+        res = pyclipper.scale_from_clipper(value, self.scale)
+        
+        assert isinstance(res, float)
+        # Convert to float to get "normal" division in Python < 3.
+        assert res == float(value) / self.scale
+    
+    def test_path_scale_to(self):
+        res = pyclipper.scale_to_clipper(self.path)
+        
+        assert len(res) == len(self.path)
+        assert all(isinstance(i, list) for i in res)
+        assert all(isinstance(j, int) for i in res for j in i)
+    
+    def test_path_scale_from(self):
+        res = pyclipper.scale_from_clipper(self.path)
+        
+        assert len(res) == len(self.path)
+        assert all(isinstance(i, list) for i in res)
+        assert all(isinstance(j, float) for i in res for j in i)
+    
+    def test_paths_scale_to(self):
+        res = pyclipper.scale_to_clipper(self.paths)
+        
+        assert len(res) == len(self.paths)
+        assert all(isinstance(i, list) for i in res)
+        assert all(isinstance(j, list) for i in res for j in i)
+        assert all(isinstance(k, int) for i in res for j in i for k in j)
+    
+    def test_paths_scale_from(self):
+        res = pyclipper.scale_from_clipper(self.paths)
+        
+        assert len(res) == len(self.paths)
+        assert all(isinstance(i, list) for i in res)
+        assert all(isinstance(j, list) for i in res for j in i)
+        assert all(isinstance(k, float) for i in res for j in i for k in j)
+
+
 def _do_solutions_match(paths_1, paths_2, factor=None):
     if len(paths_1) != len(paths_2):
         return False
