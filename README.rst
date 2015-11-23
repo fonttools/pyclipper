@@ -135,8 +135,14 @@ library <http://www.angusj.com/delphi/clipper.php>`__):
     solution = pc.Execute(pyclipper.CT_INTERSECTION, pyclipper.PFT_EVENODD, pyclipper.PFT_EVENODD) 
 
 The Clipper library uses integers instead of floating point values to
-preserve numerical robustness. If you need to scale coordinates of your polygons, this library provides helper functions `scale_to_clipper()` and `scale_from_clipper()` to achieve that. In previous version of Pyclipper (`0.9.3b0`) this could be done using the `SCALING_FACTOR` variable, which was removed to provide the original numerical robustness of the base library.
+preserve numerical robustness. If you need to scale coordinates of your polygons, this library provides helper functions ``scale_to_clipper()`` and ``scale_from_clipper()`` to achieve that. 
 
+Migrating from Pyclipper ``0.9.3b0``
+------------------------------------
+
+In previous version of Pyclipper (``0.9.3b0``) polygons could be automatically scaled using the ``SCALING_FACTOR`` variable. This was removed in version ``1.0.0`` due to inexact conversions related to floating point operations. This way the library now provides the original numerical robustness of the base library.
+
+The ``SCALING_FACTOR`` removal **breaks backward compatibility**. 
 For an explanation and help with migration, see https://github.com/greginvm/pyclipper/wiki/Deprecating-SCALING_FACTOR.
 
 Authors
@@ -149,8 +155,8 @@ Authors
 -  Adaptions to make it work with version 5 written by `Lukas
    Treyer <http://www.lukastreyer.com>`__,
 -  Adaptions to make it work with version 6.2.1 and PyPI package written
-by `Gregor Ratajc <http://www.gregorratajc.com>`__.
--  `SCALING_FACTOR` removal and additions to documentation by Michael Schwarz
+by `Gregor Ratajc <http://www.gregorratajc.com>`__,
+-  ``SCALING_FACTOR`` removal and additions to documentation by Michael Schwarz.
 
 License
 =======
