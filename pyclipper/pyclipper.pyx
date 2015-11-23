@@ -9,11 +9,8 @@ This wrapper was written by Maxime Chalton, Lukas Treyer and Gregor Ratajc.
 SILENT = True
 
 """
-Clipper library operates with integer coordinates. To preserve the degree of
-floating point precision use the SCALING_FACTOR with which all the coordinates and
-relevant properties will be multiplied before used with the Clipper library.
-
-More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/ClipperOffset/Properties/ArcTolerance.htm"""
+SCALING_FACTOR has been deprecated. See https://github.com/greginvm/pyclipper/wiki/Deprecating-SCALING_FACTOR for an explanation.
+"""
 SCALING_FACTOR = 1
 
 
@@ -28,6 +25,8 @@ import struct
 import copy as _copy
 import unicodedata as _unicodedata
 import time as _time
+import warnings as _warnings
+import numbers as _numbers
 
 from cython.operator cimport dereference as deref
 
@@ -353,7 +352,7 @@ def CleanPolygon(poly, double distance=1.415):
     cleaned polygon
     """
     cdef Path out_poly
-    c_CleanPolygon(_to_clipper_path(poly), out_poly, _to_clipper_double(distance))
+    c_CleanPolygon(_to_clipper_path(poly), out_poly, distance)
     return _from_clipper_path(out_poly)
 
 
@@ -369,7 +368,7 @@ def CleanPolygons(polys, double distance=1.415):
     list of cleaned polygons
     """
     cdef Paths out_polys = _to_clipper_paths(polys)
-    c_CleanPolygons(out_polys, _to_clipper_double(distance))
+    c_CleanPolygons(out_polys, distance)
     return _from_clipper_paths(out_polys)
 
 
@@ -514,6 +513,54 @@ def ReversePaths(paths):
     return _from_clipper_paths(c_paths)
 
 
+def scale_to_clipper(path_or_paths, scale = 2 ** 31):
+    """
+    Take a path or list of paths with coordinates represented by floats and scale them using the specified factor. This function can be user to convert paths to a representation which is more appropriate for Clipper.
+    
+    Clipper, and thus Pyclipper, uses 64-bit integers to represent coordinates internally. The actual supported range (+/- 2 ** 62) is a bit smaller than the maximal values for this type. To operate on paths which use fractional coordinates, it is necessary to translate them from and to a representation which does not depend on floats. This can be done using this function and it's reverse, `scale_from_clipper()`.
+    
+    For details, see http://www.angusj.com/delphi/clipper/documentation/Docs/Overview/Rounding.htm.
+    
+    For example, to perform a clip operation on two polygons, the arguments to `Pyclipper.AddPath()` need to be wrapped in `scale_to_clipper()` while the return value needs to be converted back with `scale_from_clipper()`:
+    
+    >>> pc = Pyclipper()
+    >>> path = [[0, 0], [1, 0], [1 / 2, (3 / 4) ** (1 / 2)]] # A triangle.
+    >>> clip = [[0, 1 / 3], [1, 1 / 3], [1, 2 / 3], [0, 1 / 3]] # A rectangle.
+    >>> pc.AddPath(scale_to_clipper(path), PT_SUBJECT)
+    >>> pc.AddPath(scale_to_clipper(clip), PT_CLIP)
+    >>> scale_from_clipper(pc.Execute(CT_INTERSECTION))
+    [[[0.6772190444171429, 0.5590730146504939], [0.2383135547861457, 0.41277118446305394], [0.19245008938014507, 0.3333333330228925], [0.8075499106198549, 0.3333333330228925]]]
+    
+    :param path_or_paths: Either a list of paths or a path. A path is a list of tuples of numbers.
+    :param scale: The factor with which to multiply coordinates before converting rounding them to ints. The default will give you a range of +/- 2 ** 31 with a precision of 2 ** -31.
+    """
+    
+    def scale_value(x):
+        if isinstance(x, _numbers.Real):
+            return <cInt>(<double>x * scale)
+        else:
+            return [scale_value(i) for i in x]
+    
+    return scale_value(path_or_paths)
+
+
+def scale_from_clipper(path_or_paths, scale = 2 ** 31):
+    """
+    Take a path or list of paths with coordinates represented by ints and scale them back to a fractional representation. This function does the inverse of `scale_to_clipper()`.
+    
+    :param path_or_paths: Either a list of paths or a path. A path is a list of tuples of numbers.
+    :param scale: The factor by which to divide coordinates when converting them to floats.
+    """
+    
+    def scale_value(x):
+        if isinstance(x, _numbers.Real):
+            return <double>x / scale
+        else:
+            return [scale_value(i) for i in x]
+    
+    return scale_value(path_or_paths)
+
+
 cdef class Pyclipper:
 
     """Wraps the Clipper class.
@@ -590,9 +637,11 @@ cdef class Pyclipper:
         Returns:
         PyIntRect with left, right, bottom, top vertices that define the axis-aligned bounding rectangle.
         """
+        _check_scaling_factor()
+        
         cdef IntRect rr = <IntRect> self.thisptr.GetBounds()
-        return PyIntRect(left=_from_clipper_value(rr.left), top=_from_clipper_value(rr.top),
-                         right=_from_clipper_value(rr.right), bottom=_from_clipper_value(rr.bottom))
+        return PyIntRect(left=rr.left, top=rr.top,
+                         right=rr.right, bottom=rr.bottom)
 
     def Execute(self, ClipType clip_type,
                 PolyFillType subj_fill_type=pftEvenOdd, PolyFillType clip_fill_type=pftEvenOdd):
@@ -728,7 +777,7 @@ cdef class PyclipperOffset:
         list of offset paths
         """
         cdef Paths c_solution
-        self.thisptr.Execute(c_solution, _to_clipper_double(delta))
+        self.thisptr.Execute(c_solution, delta)
         return _from_clipper_paths(c_solution)
 
     def Execute2(self, double delta):
@@ -743,7 +792,7 @@ cdef class PyclipperOffset:
         PyPolyNode
         """
         cdef PolyTree solution
-        self.thisptr.Execute(solution, _to_clipper_double(delta))
+        self.thisptr.Execute(solution, delta)
         return _from_poly_tree(solution)
 
     def Clear(self):
@@ -772,10 +821,14 @@ cdef class PyclipperOffset:
         More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/ClipperOffset/Properties/ArcTolerance.htm
         """
         def __get__(self):
-            return _from_clipper_value(<double> self.thisptr.ArcTolerance)
+            _check_scaling_factor()
+            
+            return self.thisptr.ArcTolerance
 
         def __set__(self, value):
-            self.thisptr.ArcTolerance = _to_clipper_double(<double> value)
+            _check_scaling_factor()
+            
+            self.thisptr.ArcTolerance = value
 
 
 cdef _filter_polynode(pypolynode, result, filter_func=None):
@@ -834,6 +887,8 @@ cdef Paths _to_clipper_paths(object polygons):
 
 
 cdef Path _to_clipper_path(object polygon):
+    _check_scaling_factor()
+    
     cdef Path path = Path()
     cdef IntPoint p
     for v in polygon:
@@ -842,7 +897,7 @@ cdef Path _to_clipper_path(object polygon):
 
 
 cdef IntPoint _to_clipper_point(object py_point):
-    return IntPoint(_to_clipper_int(py_point[0]), _to_clipper_int(py_point[1]))
+    return IntPoint(py_point[0], py_point[1])
 
 
 cdef object _from_clipper_paths(Paths paths):
@@ -858,24 +913,20 @@ cdef object _from_clipper_paths(Paths paths):
 
 
 cdef object _from_clipper_path(Path path):
+    _check_scaling_factor()
+    
     poly = []
     cdef IntPoint point
     for i in xrange(path.size()):
         point = path[i]
-        poly.append([
-            _from_clipper_value(point.X),
-            _from_clipper_value(point.Y)
-        ])
+        poly.append([point.X, point.Y])
     return poly
 
 
-cdef cInt _to_clipper_int(val):
-    return val * SCALING_FACTOR
-
-
-cdef double _to_clipper_double(val):
-    return val * <double>SCALING_FACTOR
-
-
-cdef double _from_clipper_value(val):
-    return val / <double>SCALING_FACTOR
+def _check_scaling_factor():
+    """
+    Check whether SCALING_FACTOR has been set by the code using this library and warn the user that it has been deprecated and it's value is ignored.
+    """
+    
+    if SCALING_FACTOR != 1:
+        _warnings.warn('SCALING_FACTOR is deprecated and it\'s value is ignored. See https://github.com/greginvm/pyclipper/wiki/Deprecating-SCALING_FACTOR for more information.', DeprecationWarning)
