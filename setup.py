@@ -104,7 +104,7 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
     ext_modules=[ext],
-    tests_require=['pytest'],
+    tests_require=['unittest2', 'pytest'],
     cmdclass={
         'test': PyTest,
         'build_ext': build_ext},

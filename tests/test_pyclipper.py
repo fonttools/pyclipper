@@ -4,7 +4,7 @@ Tests for Pyclipper wrapper library.
 """
 
 from __future__ import print_function
-from unittest import TestCase, main
+from unittest2 import TestCase, main
 
 import pyclipper
 
@@ -245,17 +245,18 @@ class TestPyclipperExecute(TestCase):
 
     def test_exact_results(self):
         """
-        Test whether coordinates passed into the library are returned exactly, if they are not affected by the operation.
+        Test whether coordinates passed into the library are returned exactly, if they are not affected by the
+        operation.
         """
-        
+
         pc = pyclipper.Pyclipper()
-        
+
         # Some large triangle.
         path = [[[0, 1], [0, 0], [15 ** 15, 0]]]
 
         pc.AddPaths(path, pyclipper.PT_SUBJECT, True)
         result = pc.Execute(pyclipper.PT_CLIP, pyclipper.PFT_EVENODD, pyclipper.PFT_EVENODD)
-        
+
         assert result == path
 
     def check_pypolynode(self, node):
@@ -306,7 +307,7 @@ class TestScalingFactorWarning(TestCase):
     def setUp(self):
         pyclipper.SCALING_FACTOR = 2.
         self.pc = pyclipper.Pyclipper()
-    
+
     def test_orientation(self):
         with self.assertWarns(DeprecationWarning):
             pyclipper.Orientation(PATH_SUBJ_1)
@@ -314,23 +315,23 @@ class TestScalingFactorWarning(TestCase):
     def test_area(self):
         with self.assertWarns(DeprecationWarning):
             pyclipper.Area(PATH_SUBJ_1)
-	 
+
     def test_point_in_polygon(self):
         with self.assertWarns(DeprecationWarning):
             self.assertEqual(pyclipper.PointInPolygon((180, 200), PATH_SUBJ_1), -1)
-	 
+
     def test_minkowski_sum(self):
         with self.assertWarns(DeprecationWarning):
             pyclipper.MinkowskiSum(PATTERN, PATH_SIGMA, False)
-	 
+
     def test_minkowski_sum2(self):
         with self.assertWarns(DeprecationWarning):
             pyclipper.MinkowskiSum2(PATTERN, [PATH_SIGMA], False)
-	 
+
     def test_minkowski_diff(self):
         with self.assertWarns(DeprecationWarning):
             pyclipper.MinkowskiDiff(PATH_SUBJ_1, PATH_SUBJ_2)
-	 
+
     def test_add_path(self):
         with self.assertWarns(DeprecationWarning):
             self.pc.AddPath(PATH_CLIP_1, poly_type=pyclipper.PT_CLIP)
@@ -344,47 +345,47 @@ class TestScalingFunctions(TestCase):
     scale = 2 ** 31
     path = [(0, 0), (1, 1)]
     paths = [path] * 3
-    
+
     def test_value_scale_to(self):
         value = 0.5
         res = pyclipper.scale_to_clipper(value, self.scale)
-        
+
         assert isinstance(res, int)
         assert res == int(value * self.scale)
-    
+
     def test_value_scale_from(self):
         value = 1000000000000
         res = pyclipper.scale_from_clipper(value, self.scale)
-        
+
         assert isinstance(res, float)
         # Convert to float to get "normal" division in Python < 3.
         assert res == float(value) / self.scale
-    
+
     def test_path_scale_to(self):
         res = pyclipper.scale_to_clipper(self.path)
-        
+
         assert len(res) == len(self.path)
         assert all(isinstance(i, list) for i in res)
         assert all(isinstance(j, int) for i in res for j in i)
-    
+
     def test_path_scale_from(self):
         res = pyclipper.scale_from_clipper(self.path)
-        
+
         assert len(res) == len(self.path)
         assert all(isinstance(i, list) for i in res)
         assert all(isinstance(j, float) for i in res for j in i)
-    
+
     def test_paths_scale_to(self):
         res = pyclipper.scale_to_clipper(self.paths)
-        
+
         assert len(res) == len(self.paths)
         assert all(isinstance(i, list) for i in res)
         assert all(isinstance(j, list) for i in res for j in i)
         assert all(isinstance(k, int) for i in res for j in i for k in j)
-    
+
     def test_paths_scale_from(self):
         res = pyclipper.scale_from_clipper(self.paths)
-        
+
         assert len(res) == len(self.paths)
         assert all(isinstance(i, list) for i in res)
         assert all(isinstance(j, list) for i in res for j in i)
@@ -405,7 +406,6 @@ def _modify_vertices(path, addend=0.0, multiplier=1.0, converter=None):
     path = path[:]
 
     def convert_coordinate(c):
-        f = c
         if multiplier is not None:
             c *= multiplier
         if addend is not None:
