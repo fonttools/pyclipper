@@ -115,7 +115,7 @@ library.
    fills a list of paths the other PolyTree) that becomes
    ``Pyclipper.Execute`` and ``Pyclipper.Execute2``.
 
-Basic example (based on `Angus Johnson's Clipper
+Basic clipping example (based on `Angus Johnson's Clipper
 library <http://www.angusj.com/delphi/clipper.php>`__):
 
 .. code:: python
@@ -133,6 +133,24 @@ library <http://www.angusj.com/delphi/clipper.php>`__):
     pc.AddPaths(subj, pyclipper.PT_SUBJECT, True)
 
     solution = pc.Execute(pyclipper.CT_INTERSECTION, pyclipper.PFT_EVENODD, pyclipper.PFT_EVENODD) 
+    
+    # solution (a list of paths): [[[240, 200], [190, 200], [190, 150], [240, 150]], [[200, 190], [230, 190], [215, 160]]]
+    
+
+Basic offset example:
+
+.. code:: python
+
+    import pyclipper
+
+    subj = ((180, 200), (260, 200), (260, 150), (180, 150))
+
+    pco = pyclipper.PyclipperOffset()
+    pco.AddPath(subj, pyclipper.JT_ROUND, pyclipper.ET_CLOSEDPOLYGON)
+
+    solution = pco.Execute(-7.0)
+    
+    # solution (a list of paths): [[[253, 193], [187, 193], [187, 157], [253, 157]]]
 
 The Clipper library uses integers instead of floating point values to
 preserve numerical robustness. If you need to scale coordinates of your polygons, this library provides helper functions ``scale_to_clipper()`` and ``scale_from_clipper()`` to achieve that. 
