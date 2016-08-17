@@ -536,10 +536,10 @@ def scale_to_clipper(path_or_paths, scale = 2 ** 31):
     """
     
     def scale_value(x):
-        if isinstance(x, _numbers.Real):
-            return <cInt>(<double>x * scale)
-        else:
+        if hasattr(x, "__len__"):
             return [scale_value(i) for i in x]
+        else:
+            return <cInt>(<double>x * scale)
     
     return scale_value(path_or_paths)
 
@@ -553,10 +553,10 @@ def scale_from_clipper(path_or_paths, scale = 2 ** 31):
     """
     
     def scale_value(x):
-        if isinstance(x, _numbers.Real):
-            return <double>x / scale
-        else:
+        if hasattr(x, "__len__"):
             return [scale_value(i) for i in x]
+        else:
+            return <double>x / scale
     
     return scale_value(path_or_paths)
 
