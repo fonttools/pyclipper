@@ -392,6 +392,21 @@ class TestScalingFunctions(TestCase):
         assert all(isinstance(k, float) for i in res for j in i for k in j)
 
 
+class TestNonStandardNumbers(TestCase):
+    
+    def test_sympyzero(self):
+        try:
+            from sympy import Point2D
+            from sympy.core.numbers import Zero
+        except ImportError:
+            self.skipTest("Skipping, sympy not available")
+        path = [(0,0), (0,1)]
+        path = [Point2D(v) for v in [(0,0), (0,1)]]
+        assert type(path[0].x) == Zero
+        path = pyclipper.scale_to_clipper(path)
+        assert path == [[0, 0], [0, 2147483648]]
+                
+
 def _do_solutions_match(paths_1, paths_2, factor=None):
     if len(paths_1) != len(paths_2):
         return False
