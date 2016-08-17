@@ -190,6 +190,10 @@ License
 Changelog
 =========
 
+1.0.2
+-------
+-  bug fix: `sympy.Zero` recognized as a collection (https://github.com/greginvm/pyclipper/issues/5)
+
 1.0.0
 -------
 - **(breaks backwards compatibility)** removes SCALING_FACTOR
