@@ -397,10 +397,12 @@ class TestNonStandardNumbers(TestCase):
     def test_sympyzero(self):
         try:
             from sympy import Point2D
+            from sympy.core.numbers import Zero
         except ImportError:
             self.skipTest("Skipping, sympy not available")
         path = [(0,0), (0,1)]
         path = [Point2D(v) for v in [(0,0), (0,1)]]
+        assert type(path[0].x) == Zero
         path = pyclipper.scale_to_clipper(path)
         assert path == [[0, 0], [0, 2147483648]]
                 
