@@ -173,7 +173,10 @@ Authors
 -  Adaptions to make it work with version 5 written by `Lukas
    Treyer <http://www.lukastreyer.com>`__,
 -  Adaptions to make it work with version 6.2.1 and PyPI package written by `Gregor Ratajc <http://www.gregorratajc.com>`__,
--  ``SCALING_FACTOR`` removal and additions to documentation by Michael Schwarz.
+-  ``SCALING_FACTOR`` removal and additions to documentation by Michael Schwarz,
+-  Bug fix `sympy.Zero` is not a collection by Jamie Bull.
+
+The package is maintained by `Gregor Ratajc <http://www.gregorratajc.com>`__.
 
 License
 =======
