@@ -9,7 +9,8 @@ This wrapper was written by Maxime Chalton, Lukas Treyer and Gregor Ratajc.
 SILENT = True
 
 """
-SCALING_FACTOR has been deprecated. See https://github.com/greginvm/pyclipper/wiki/Deprecating-SCALING_FACTOR for an explanation.
+SCALING_FACTOR has been deprecated. See https://github.com/greginvm/pyclipper/wiki/Deprecating-SCALING_FACTOR
+for an explanation.
 """
 SCALING_FACTOR = 1
 
@@ -515,49 +516,57 @@ def ReversePaths(paths):
 
 def scale_to_clipper(path_or_paths, scale = 2 ** 31):
     """
-    Take a path or list of paths with coordinates represented by floats and scale them using the specified factor. This function can be user to convert paths to a representation which is more appropriate for Clipper.
-    
-    Clipper, and thus Pyclipper, uses 64-bit integers to represent coordinates internally. The actual supported range (+/- 2 ** 62) is a bit smaller than the maximal values for this type. To operate on paths which use fractional coordinates, it is necessary to translate them from and to a representation which does not depend on floats. This can be done using this function and it's reverse, `scale_from_clipper()`.
-    
+    Take a path or list of paths with coordinates represented by floats and scale them using the specified factor.
+    This function can be user to convert paths to a representation which is more appropriate for Clipper.
+
+    Clipper, and thus Pyclipper, uses 64-bit integers to represent coordinates internally. The actual supported
+    range (+/- 2 ** 62) is a bit smaller than the maximal values for this type. To operate on paths which use
+    fractional coordinates, it is necessary to translate them from and to a representation which does not depend
+    on floats. This can be done using this function and it's reverse, `scale_from_clipper()`.
+
     For details, see http://www.angusj.com/delphi/clipper/documentation/Docs/Overview/Rounding.htm.
-    
-    For example, to perform a clip operation on two polygons, the arguments to `Pyclipper.AddPath()` need to be wrapped in `scale_to_clipper()` while the return value needs to be converted back with `scale_from_clipper()`:
-    
+
+    For example, to perform a clip operation on two polygons, the arguments to `Pyclipper.AddPath()` need to be wrapped
+    in `scale_to_clipper()` while the return value needs to be converted back with `scale_from_clipper()`:
+
     >>> pc = Pyclipper()
     >>> path = [[0, 0], [1, 0], [1 / 2, (3 / 4) ** (1 / 2)]] # A triangle.
     >>> clip = [[0, 1 / 3], [1, 1 / 3], [1, 2 / 3], [0, 1 / 3]] # A rectangle.
     >>> pc.AddPath(scale_to_clipper(path), PT_SUBJECT)
     >>> pc.AddPath(scale_to_clipper(clip), PT_CLIP)
     >>> scale_from_clipper(pc.Execute(CT_INTERSECTION))
-    [[[0.6772190444171429, 0.5590730146504939], [0.2383135547861457, 0.41277118446305394], [0.19245008938014507, 0.3333333330228925], [0.8075499106198549, 0.3333333330228925]]]
-    
+    [[[0.6772190444171429, 0.5590730146504939], [0.2383135547861457, 0.41277118446305394],
+      [0.19245008938014507, 0.3333333330228925], [0.8075499106198549, 0.3333333330228925]]]
+
     :param path_or_paths: Either a list of paths or a path. A path is a list of tuples of numbers.
-    :param scale: The factor with which to multiply coordinates before converting rounding them to ints. The default will give you a range of +/- 2 ** 31 with a precision of 2 ** -31.
+    :param scale: The factor with which to multiply coordinates before converting rounding them to ints. The default
+    will give you a range of +/- 2 ** 31 with a precision of 2 ** -31.
     """
-    
+
     def scale_value(x):
         if hasattr(x, "__len__"):
             return [scale_value(i) for i in x]
         else:
             return <cInt>(<double>x * scale)
-    
+
     return scale_value(path_or_paths)
 
 
 def scale_from_clipper(path_or_paths, scale = 2 ** 31):
     """
-    Take a path or list of paths with coordinates represented by ints and scale them back to a fractional representation. This function does the inverse of `scale_to_clipper()`.
-    
+    Take a path or list of paths with coordinates represented by ints and scale them back to a fractional
+    representation. This function does the inverse of `scale_to_clipper()`.
+
     :param path_or_paths: Either a list of paths or a path. A path is a list of tuples of numbers.
     :param scale: The factor by which to divide coordinates when converting them to floats.
     """
-    
+
     def scale_value(x):
         if hasattr(x, "__len__"):
             return [scale_value(i) for i in x]
         else:
             return <double>x / scale
-    
+
     return scale_value(path_or_paths)
 
 
@@ -822,12 +831,12 @@ cdef class PyclipperOffset:
         """
         def __get__(self):
             _check_scaling_factor()
-            
+
             return self.thisptr.ArcTolerance
 
         def __set__(self, value):
             _check_scaling_factor()
-            
+
             self.thisptr.ArcTolerance = value
 
 
@@ -888,7 +897,7 @@ cdef Paths _to_clipper_paths(object polygons):
 
 cdef Path _to_clipper_path(object polygon):
     _check_scaling_factor()
-    
+
     cdef Path path = Path()
     cdef IntPoint p
     for v in polygon:
@@ -914,7 +923,7 @@ cdef object _from_clipper_paths(Paths paths):
 
 cdef object _from_clipper_path(Path path):
     _check_scaling_factor()
-    
+
     poly = []
     cdef IntPoint point
     for i in xrange(path.size()):
@@ -925,8 +934,9 @@ cdef object _from_clipper_path(Path path):
 
 def _check_scaling_factor():
     """
-    Check whether SCALING_FACTOR has been set by the code using this library and warn the user that it has been deprecated and it's value is ignored.
+    Check whether SCALING_FACTOR has been set by the code using this library and warn the user that it has been
+    deprecated and it's value is ignored.
     """
-    
+
     if SCALING_FACTOR != 1:
         _warnings.warn('SCALING_FACTOR is deprecated and it\'s value is ignored. See https://github.com/greginvm/pyclipper/wiki/Deprecating-SCALING_FACTOR for more information.', DeprecationWarning)
