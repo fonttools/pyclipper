@@ -395,7 +395,10 @@ class TestScalingFunctions(TestCase):
 class TestNonStandardNumbers(TestCase):
     
     def test_sympyzero(self):
-        from sympy import Point2D
+        try:
+            from sympy import Point2D
+        except ImportError:
+            self.skipTest("Skipping, sympy not available")
         path = [(0,0), (0,1)]
         path = [Point2D(v) for v in [(0,0), (0,1)]]
         path = pyclipper.scale_to_clipper(path)
