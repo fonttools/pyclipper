@@ -97,14 +97,14 @@ artifacts:
 #### Then, you encrypt it using https://ci.appveyor.com/tools/encrypt
 #### and paste it below.
 #### More info at: https://www.appveyor.com/docs/deployment/github/
-#
-# deploy:
-#   # Deploy wheels on tags to GitHub Releases
-#   - provider: GitHub
-#     auth_token:
-#       secure: NDuEsX2sqAbFegVqSkL45mJyfzirm14zt4EHSmErI0AbJvZQftFaarVqar0WAfiL
-#     draft: false
-#     prerelease: false
-#     on:
-#       branch: master
-#       appveyor_repo_tag: true
+
+deploy:
+  # Deploy wheels on tags to GitHub Releases
+  - provider: GitHub
+    auth_token:
+      secure: 1c66/+HJrHWXxMTWNyLbbiVEsc0YE7yIJd60myQJKGvPQfjcnqQ34NjbrEEGcR85
+    draft: false
+    prerelease: false
+    on:
+      branch: master
+      appveyor_repo_tag: true

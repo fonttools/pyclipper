@@ -180,8 +180,9 @@ Authors
 -  Adaptions to make it work with version 5 written by `Lukas
    Treyer <http://www.lukastreyer.com>`__,
 -  Adaptions to make it work with version 6.2.1 and PyPI package written by `Gregor Ratajc <http://www.gregorratajc.com>`__,
--  ``SCALING_FACTOR`` removal and additions to documentation by Michael Schwarz,
--  Bug fix `sympy.Zero` is not a collection by Jamie Bull.
+-  ``SCALING_FACTOR`` removal and additions to documentation by Michael Schwarz (@Feuermurmel),
+-  Bug fix `sympy.Zero` is not a collection by Jamie Bull (@jamiebull1),
+-  Travis CI and Appveyor CI integration for continuous builds of wheel packages by Cosimo Lupo (@anthrotype).
 
 The package is maintained by `Gregor Ratajc <http://www.gregorratajc.com>`__.
 
@@ -197,13 +198,17 @@ License
 Changelog
 =========
 
+1.0.3
+-------
+-  added Travis CI and Appveyor CI to build wheel packages (thanks to @anthrotype)
+
 1.0.2
 -------
--  bug fix: `sympy.Zero` recognized as a collection (https://github.com/greginvm/pyclipper/issues/5)
+-  bug fix: `sympy.Zero` recognized as a collection (thanks to @jamiebull1)
 
 1.0.0
 -------
-- **(breaks backwards compatibility)** removes SCALING_FACTOR
+- **(breaks backwards compatibility)** removes SCALING_FACTOR (thanks to @Feuermurmel)
 
 0.9.3b0
 -------

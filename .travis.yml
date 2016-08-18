@@ -94,14 +94,14 @@ after_success:
 ####  The following section enables automatic deployment on tags to GitHub Releases.
 ####  You must replace the secure api_key with yours, as created by `travis setup releases`.
 ####  See https://docs.travis-ci.com/user/deployment/releases
-#
-# deploy:
-#   provider: releases
-#   api_key:
-#     secure: smeR8YNNcSTTf4LPts6yR2HItgAsld65P52lGVjPvCxe7lx5unXrC8sPMKK8EQcHEruxVbY204z7MKyKcAMg/DCe1r+bYGuH0oT+lRLxJQPNNoo7innFax58f7pfutbDN54DLQ/s9aPE2Ogk1CcH5pGzLtJziPF/oGW97wBtOmUQcFFcWBjw6/qs2jS0SkZ1jiHLH1/Vn6Rquy4EWthOTR9KLpdqPtQAkFr5dVtsjV93YLX1bUFbEL6BDSu6gTAfQFRby7D991Uv6+xH5bcECwPwSibnZIPV0HyuYpGOp053YKKtovl2IO09rNtB56BLZsKOOoCWS8/sxI0z4uKwRFg+nYblaRUuwJ0IM6IupUciXdvDRWYYoZcbNRVFhoO9Ct6/wsusI4tcbSiGdT0aPI3zLPbtAwvuCRVazTx5VuiM3JZQIir+3Qpv4TzXAw0Cn/eOIgT6EP+I/FRuHYIzEICypx9vWqjAJTcJ69I5OqmIUPuVrLXWOO51G3qfHpMfhn9TGhbc63v8SX6V4bovVrmxwLzGnr+VA9grnytdoeEeaZZ+SEsOrOoEI2BbnXLDeWZNbC1X1IRiD9LxARFrwbXWgLPlk1nZU49pbkuuPKrccvgv2jc0v5GLgfDQyMINO/06FIMpMbzxI/skTv6DXzRz/jwM+LSZjxRRR9Gb0nk=
-#   file_glob: true
-#   file: "${TRAVIS_BUILD_DIR}/wheelhouse/*"
-#   skip_cleanup: true
-#   on:
-#     repo: greginvm/pyclipper
-#     tags: true
+
+deploy:
+  provider: releases
+  api_key:
+    secure: cO28Gh+rJ/DgTTM3X7GsAChmOhNxkzZrf6pI3hxGTpDSivyc8hN9TW7sQWaj3A8SfilBM11dvrIvESHRUeQJBkVYANkA2ImREKpH+wXK4qHXxD6I0vWptFXPmPPij7s8oO2c444+HJHq8lB8Y0VJo7HaqLo40SBX9YPiXhbhBMzpYr1ZIPkhzNJmEislQx3WrtGVO9SLAMtWqEvnB9vSwPvm9jTfayNUBewZ7X2NBNmqaP4j7yoW/QGXn2tmdTpRBj45cIZrxvw/8qOf4wEgez8VBndia/Zapc4ivphAbrNscMp4PuWaneGz/DUnMSBN7FZyzwaWuZl+HBLvdeQTLcDWvB5kWDzCRSpEGcCmijT9pjkEM3mUwFLrmb/6r0xLSwmTHqg9+BO0bVYKmPAlSe1qYhZOBdgnsjwbYq7agNV7RCZOzbVExrhucln8jKWgFPdRBqsooUUAMmZBgp4/Vzn2GV3V57zEFAAl1LAyO5irS7LAkmQeZly3nHY0v6eisIsFIUM5kGIuYxYVptGzLhkG0Q0nwcCNPiI5dbzBxjXHV1FDpbeHQcOViweVhG4aJkCGjhFxy+h9uxnr/RqqcgraIi8ooSoHH/bjjDhgx9AExEGE5Oin9OwmrlphLayXhSUYrr9Su2JnvQfPggHOrEEWitvG7bbse8Bzur4t/WE=
+  file_glob: true
+  file: "${TRAVIS_BUILD_DIR}/wheelhouse/*"
+  skip_cleanup: true
+  on:
+    repo: greginvm/pyclipper
+    tags: true
