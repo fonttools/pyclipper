@@ -1,8 +1,12 @@
 About
 =====
 
-[![Build Status](https://travis-ci.org/greginvm/pyclipper.svg?branch=master)](https://travis-ci.org/greginvm/pyclipper)
-[![Build status](https://ci.appveyor.com/api/projects/status/8w19hrxjoohu489c/branch/master?svg=true)](https://ci.appveyor.com/project/greginvm/pyclipper/branch/master)
+.. image:: https://badge.fury.io/py/pyclipper.svg
+    :target: https://badge.fury.io/py/pyclipper
+.. image:: https://travis-ci.org/greginvm/pyclipper.svg?branch=master
+    :target: https://travis-ci.org/greginvm/pyclipper
+.. image:: https://ci.appveyor.com/api/projects/status/8w19hrxjoohu489c/branch/master?svg=true
+    :target: https://ci.appveyor.com/project/greginvm/pyclipper/branch/master
 
 Pyclipper is a Cython wrapper exposing public functions and classes of
 the C++ translation of the `Angus Johnson's Clipper library (ver.
