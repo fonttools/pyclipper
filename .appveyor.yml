@@ -1,0 +1,84 @@
+environment:
+  global:
+    # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
+    # /E:ON and /V:ON options are not enabled in the batch script intepreter
+    # See: http://stackoverflow.com/a/13751649/163740
+    CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\.appveyor\\run_with_env.cmd"
+
+  matrix:
+    - PYTHON: "C:\\Python27"
+      PYTHON_VERSION: "2.7"
+      PYTHON_ARCH: "32"
+
+    - PYTHON: "C:\\Python34"
+      PYTHON_VERSION: "3.4"
+      PYTHON_ARCH: "32"
+
+    - PYTHON: "C:\\Python35"
+      PYTHON_VERSION: "3.5"
+      PYTHON_ARCH: "32"
+
+    - PYTHON: "C:\\Python27-x64"
+      PYTHON_VERSION: "2.7"
+      PYTHON_ARCH: "64"
+
+    - PYTHON: "C:\\Python34-x64"
+      PYTHON_VERSION: "3.4"
+      PYTHON_ARCH: "64"
+
+    - PYTHON: "C:\\Python35-x64"
+      PYTHON_VERSION: "3.5"
+      PYTHON_ARCH: "64"
+
+init:
+  - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
+
+install:
+  # If there is a newer build queued for the same PR, cancel this one.
+  # The AppVeyor 'rollout builds' option is supposed to serve the same
+  # purpose but it is problematic because it tends to cancel builds pushed
+  # directly to master instead of just PR builds (or the converse).
+  # credits: JuliaLang developers.
+  - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -and $env:APPVEYOR_BUILD_NUMBER -ne ((Invoke-RestMethod `
+        https://ci.appveyor.com/api/projects/$env:APPVEYOR_ACCOUNT_NAME/$env:APPVEYOR_PROJECT_SLUG/history?recordsNumber=50).builds | `
+        Where-Object pullRequestId -eq $env:APPVEYOR_PULL_REQUEST_NUMBER)[0].buildNumber) { `
+          throw "There are newer queued builds for this pull request, failing early." }
+
+  # Prepend newly installed Python to the PATH
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+
+  # Check that we have the expected version and architecture for Python
+  - "python --version"
+  - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
+
+  # Upgrade pip to avoid out-of-date warnings
+  - "python -m pip install --disable-pip-version-check --upgrade pip"
+  - "pip --version"
+
+  # Upgrade setuptools, wheel and virtualenv
+  - "pip install --upgrade setuptools wheel virtualenv"
+
+  # Create new virtual environment and activate it
+  - "python -m virtualenv venv"
+  - "venv\\Scripts\\activate"
+  - "python -c \"import sys; print(sys.executable)\""
+
+  # Install build and test dependencies
+  - "%CMD_IN_ENV% pip install cython sympy unittest2 pytest"
+
+# We skip the build step as the `built_ext`  command is implicitly called
+# when running `python setup.py test`
+build: off
+
+test_script:
+  # Run the project tests
+  - "%CMD_IN_ENV% python setup.py test --pytest-args=\"-v tests\""
+
+after_test:
+  # If tests are successful, create binary packages
+  - "%CMD_IN_ENV% pip wheel -w wheelhouse ."
+  - ps: "ls wheelhouse"
+
+artifacts:
+  # Archive the generated packages in the ci.appveyor.com build report
+  - path: wheelhouse\*.whl
