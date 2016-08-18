@@ -5,6 +5,12 @@ Tests for Pyclipper wrapper library.
 
 from __future__ import print_function
 from unittest2 import TestCase, main
+import sys
+
+if sys.version_info < (3,):
+    integer_types = (int, long)
+else:
+    integer_types = (int,)
 
 import pyclipper
 
@@ -350,7 +356,7 @@ class TestScalingFunctions(TestCase):
         value = 0.5
         res = pyclipper.scale_to_clipper(value, self.scale)
 
-        assert isinstance(res, int)
+        assert isinstance(res, integer_types)
         assert res == int(value * self.scale)
 
     def test_value_scale_from(self):
@@ -366,7 +372,7 @@ class TestScalingFunctions(TestCase):
 
         assert len(res) == len(self.path)
         assert all(isinstance(i, list) for i in res)
-        assert all(isinstance(j, int) for i in res for j in i)
+        assert all(isinstance(j, integer_types) for i in res for j in i)
 
     def test_path_scale_from(self):
         res = pyclipper.scale_from_clipper(self.path)
@@ -381,7 +387,7 @@ class TestScalingFunctions(TestCase):
         assert len(res) == len(self.paths)
         assert all(isinstance(i, list) for i in res)
         assert all(isinstance(j, list) for i in res for j in i)
-        assert all(isinstance(k, int) for i in res for j in i for k in j)
+        assert all(isinstance(k, integer_types) for i in res for j in i for k in j)
 
     def test_paths_scale_from(self):
         res = pyclipper.scale_from_clipper(self.paths)
