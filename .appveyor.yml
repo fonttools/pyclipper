@@ -10,6 +10,10 @@ environment:
       PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "32"
 
+    - PYTHON: "C:\\Python33"
+      PYTHON_VERSION: "3.3"
+      PYTHON_ARCH: "32"
+
     - PYTHON: "C:\\Python34"
       PYTHON_VERSION: "3.4"
       PYTHON_ARCH: "32"
@@ -20,6 +24,10 @@ environment:
 
     - PYTHON: "C:\\Python27-x64"
       PYTHON_VERSION: "2.7"
+      PYTHON_ARCH: "64"
+
+    - PYTHON: "C:\\Python33-x64"
+      PYTHON_VERSION: "3.3"
       PYTHON_ARCH: "64"
 
     - PYTHON: "C:\\Python34-x64"
