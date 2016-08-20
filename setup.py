@@ -5,8 +5,6 @@ from setuptools import setup
 from setuptools.extension import Extension
 from setuptools.command.test import test as TestCommand
 
-version = '1.0.3'
-
 """
 Note on using the setup.py:
 setup.py operates in 2 modes that are based on the presence of the 'dev' file in the root of the project.
@@ -81,7 +79,7 @@ if sys.argv[-1] == 'tag':
 
 setup(
     name='pyclipper',
-    version=version,
+    use_scm_version=True,
     description='Cython wrapper for the C++ translation of the Angus Johnson\'s Clipper library (ver. 6.2.1)',
     author='Angus Johnson, Maxime Chalton, Lukas Treyer, Gregor Ratajc',
     author_email='me@gregorratajc.com',
@@ -104,6 +102,10 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
     ext_modules=[ext],
+    setup_requires=[
+       'setuptools_scm>=1.11.1',
+       'setuptools_scm_git_archive>=1.0',
+    ],
     tests_require=['unittest2', 'pytest'],
     cmdclass={
         'test': PyTest,
