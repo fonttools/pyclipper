@@ -1,0 +1,14 @@
+# By default setuptools_scm will include in the source distribution all the
+# files under version control, as resulting from `git ls-files`.
+
+# Here we only need to include those which are not tracked by git but we do
+# want to be included
+include pyclipper/pyclipper.cpp
+
+# and exclude those that are tracked by git but don't want to be in the sdist
+exclude dev
+exclude .git*
+exclude .appveyor.yml .travis.yml
+exclude .appveyor/*
+exclude multibuild/*
+exclude config.sh
