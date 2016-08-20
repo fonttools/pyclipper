@@ -72,10 +72,6 @@ if sys.argv[-1] == 'publish':
     os.system("python setup.py bdist_wheel upload")
     sys.exit()
 
-if sys.argv[-1] == 'tag':
-    os.system("git tag -a %s -m 'version %s'" % (version, version))
-    os.system("git push --tags")
-    sys.exit()
 
 setup(
     name='pyclipper',
