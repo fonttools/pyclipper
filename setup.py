@@ -25,11 +25,23 @@ if dev_mode:
     print('Development mode: Compiling Cython modules from .pyx sources.')
     sources = ["pyclipper/pyclipper.pyx", "pyclipper/clipper.cpp"]
 
-else:
-    from distutils.command.build_ext import build_ext
+    from setuptools.command.sdist import sdist as _sdist
 
+    class sdist(_sdist):
+        """ Run 'cythonize' on *.pyx sources to ensure the .cpp files included
+        in the source distribution are up-to-date.
+        """
+        def run(self):
+            from Cython.Build import cythonize
+            cythonize(sources, language='c++')
+            _sdist.run(self)
+
+    cmdclass = {'sdist': sdist, 'build_ext': build_ext}
+
+else:
     print('Distribution mode: Compiling Cython generated .cpp sources.')
     sources = ["pyclipper/pyclipper.cpp", "pyclipper/clipper.cpp"]
+    cmdclass = {}
 
 
 ext = Extension("pyclipper",
@@ -63,6 +75,9 @@ class PyTest(TestCommand):
 
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
+
+
+cmdclass['test'] = PyTest
 
 
 # This command has been borrowed from
@@ -103,7 +118,5 @@ setup(
        'setuptools_scm_git_archive>=1.0',
     ],
     tests_require=['unittest2', 'pytest'],
-    cmdclass={
-        'test': PyTest,
-        'build_ext': build_ext},
+    cmdclass=cmdclass,
 )
