@@ -3,7 +3,6 @@ import sys
 import os
 from setuptools import setup
 from setuptools.extension import Extension
-from setuptools.command.test import test as TestCommand
 
 """
 Note on using the setup.py:
@@ -44,6 +43,10 @@ else:
     cmdclass = {}
 
 
+needs_pytest = {'pytest', 'test'}.intersection(sys.argv)
+pytest_runner = ['pytest_runner'] if needs_pytest else []
+
+
 ext = Extension("pyclipper",
                 sources=sources,
                 language="c++",
@@ -53,31 +56,6 @@ ext = Extension("pyclipper",
                 # See pyclipper/clipper.hpp
                 define_macros=[('use_lines', 1)]
                 )
-
-
-# This command has been borrowed from
-# http://pytest.org/latest/goodpractises.html
-class PyTest(TestCommand):
-    user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
-
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.pytest_args = ['tests']
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        # import here, cause outside the eggs aren't loaded
-        import pytest
-
-        errno = pytest.main(self.pytest_args)
-        sys.exit(errno)
-
-
-cmdclass['test'] = PyTest
 
 
 # This command has been borrowed from
@@ -116,7 +94,7 @@ setup(
     setup_requires=[
        'setuptools_scm>=1.11.1',
        'setuptools_scm_git_archive>=1.0',
-    ],
+    ] + pytest_runner,
     tests_require=['unittest2', 'pytest'],
     cmdclass=cmdclass,
 )
