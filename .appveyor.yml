@@ -72,7 +72,7 @@ install:
   - "python -c \"import sys; print(sys.executable)\""
 
   # Install build and test dependencies
-  - "%CMD_IN_ENV% pip install cython sympy"
+  - "%CMD_IN_ENV% pip install cython sympy unittest2 pytest"
 
 # We skip the build step as the `built_ext`  command is implicitly called
 # when running `python setup.py test`
