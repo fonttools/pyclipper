@@ -4,7 +4,7 @@
 function pre_build {
     # Any stuff that you need to do before you start building the wheels
     # Runs in the root directory of this repository.
-    :
+    python setup.py egg_info
 }
 
 function run_tests {
