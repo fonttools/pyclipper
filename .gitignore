@@ -6,3 +6,4 @@ pyclipper.egg-info
 pyclipper/pyclipper.cpp
 *.pyc
 MANIFEST
+.eggs/
