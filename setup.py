@@ -3,9 +3,6 @@ import sys
 import os
 from setuptools import setup
 from setuptools.extension import Extension
-from setuptools.command.test import test as TestCommand
-
-version = '1.0.3'
 
 """
 Note on using the setup.py:
@@ -27,11 +24,27 @@ if dev_mode:
     print('Development mode: Compiling Cython modules from .pyx sources.')
     sources = ["pyclipper/pyclipper.pyx", "pyclipper/clipper.cpp"]
 
-else:
-    from distutils.command.build_ext import build_ext
+    from setuptools.command.sdist import sdist as _sdist
 
+    class sdist(_sdist):
+        """ Run 'cythonize' on *.pyx sources to ensure the .cpp files included
+        in the source distribution are up-to-date.
+        """
+        def run(self):
+            from Cython.Build import cythonize
+            cythonize(sources, language='c++')
+            _sdist.run(self)
+
+    cmdclass = {'sdist': sdist, 'build_ext': build_ext}
+
+else:
     print('Distribution mode: Compiling Cython generated .cpp sources.')
     sources = ["pyclipper/pyclipper.cpp", "pyclipper/clipper.cpp"]
+    cmdclass = {}
+
+
+needs_pytest = {'pytest', 'test'}.intersection(sys.argv)
+pytest_runner = ['pytest_runner'] if needs_pytest else []
 
 
 ext = Extension("pyclipper",
@@ -45,43 +58,9 @@ ext = Extension("pyclipper",
                 )
 
 
-# This command has been borrowed from
-# http://pytest.org/latest/goodpractises.html
-class PyTest(TestCommand):
-    user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
-
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.pytest_args = ['tests']
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        # import here, cause outside the eggs aren't loaded
-        import pytest
-
-        errno = pytest.main(self.pytest_args)
-        sys.exit(errno)
-
-
-# This command has been borrowed from
-# http://www.pydanny.com/python-dot-py-tricks.html
-if sys.argv[-1] == 'publish':
-    os.system("python setup.py sdist upload")
-    os.system("python setup.py bdist_wheel upload")
-    sys.exit()
-
-if sys.argv[-1] == 'tag':
-    os.system("git tag -a %s -m 'version %s'" % (version, version))
-    os.system("git push --tags")
-    sys.exit()
-
 setup(
     name='pyclipper',
-    version=version,
+    use_scm_version=True,
     description='Cython wrapper for the C++ translation of the Angus Johnson\'s Clipper library (ver. 6.2.1)',
     author='Angus Johnson, Maxime Chalton, Lukas Treyer, Gregor Ratajc',
     author_email='me@gregorratajc.com',
@@ -104,8 +83,10 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
     ext_modules=[ext],
+    setup_requires=[
+       'setuptools_scm>=1.11.1',
+       'setuptools_scm_git_archive>=1.0',
+    ] + pytest_runner,
     tests_require=['unittest2', 'pytest'],
-    cmdclass={
-        'test': PyTest,
-        'build_ext': build_ext},
+    cmdclass=cmdclass,
 )

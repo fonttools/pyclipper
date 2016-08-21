@@ -80,7 +80,7 @@ build: off
 
 test_script:
   # Run the project tests
-  - "%CMD_IN_ENV% python setup.py test --pytest-args=\"-v tests\""
+  - "%CMD_IN_ENV% python setup.py test"
 
 after_test:
   # If tests are successful, create binary packages
