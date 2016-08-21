@@ -96,7 +96,7 @@ script:
 
 after_success:
   # if tagged, create the source distribution for the deploy stage
-  - if [ -n "$TRAVIS_TAG" ] && [ "$BUILD_SDIST" == true ]; then pip install cython; python setup.py sdist -d ${TRAVIS_BUILD_DIR}/wheelhouse; fi
+  - if [ -n "$TRAVIS_TAG" ] && [ "$BUILD_SDIST" == true ]; then pip install cython; python setup.py egg-info; python setup.py sdist -d ${TRAVIS_BUILD_DIR}/wheelhouse; fi
 
 ####  The following section enables automatic deployment on tags to GitHub Releases.
 ####  You must replace the secure api_key with yours, as created by `travis setup releases`.
