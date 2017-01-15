@@ -80,10 +80,6 @@ matrix:
     - os: osx
       language: generic
       env:
-        - MB_PYTHON_VERSION=3.3
-    - os: osx
-      language: generic
-      env:
         - MB_PYTHON_VERSION=3.4
     - os: osx
       language: generic
