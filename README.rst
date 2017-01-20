@@ -198,6 +198,10 @@ License
 Changelog
 =========
 
+1.0.6
+-------
+-  Added support for Python 3.6.
+
 1.0.3
 -------
 -  added Travis CI and Appveyor CI to build wheel packages (thanks to @anthrotype)
