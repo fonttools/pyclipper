@@ -3,6 +3,7 @@ import sys
 import os
 from setuptools import setup
 from setuptools.extension import Extension
+from io import open
 
 """
 Note on using the setup.py:
@@ -57,13 +58,17 @@ ext = Extension("pyclipper",
                 define_macros=[('use_lines', 1)]
                 )
 
+with open("README.rst", "r", encoding='utf-8') as readme:
+    long_description = readme.read()
 
 setup(
     name='pyclipper',
     use_scm_version=True,
     description='Cython wrapper for the C++ translation of the Angus Johnson\'s Clipper library (ver. 6.2.1)',
+    long_description=long_description,
     author='Angus Johnson, Maxime Chalton, Lukas Treyer, Gregor Ratajc',
     author_email='me@gregorratajc.com',
+    license='MIT',
     url='https://github.com/greginvm/pyclipper',
     keywords=[
         'polygon clipping, polygon intersection, polygon union, polygon offsetting, polygon boolean, polygon, clipping, clipper, vatti'],
