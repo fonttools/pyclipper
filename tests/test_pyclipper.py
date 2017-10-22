@@ -246,8 +246,8 @@ class TestPyclipperExecute(TestCase):
 
     def test_clear(self):
         self.pc.Clear()
-        solution = self.pc.Execute(*self.default_args)
-        self.assertEqual(len(solution), 0)
+        with self.assertRaises(pyclipper.ClipperException):
+            solution = self.pc.Execute(*self.default_args)
 
     def test_exact_results(self):
         """
