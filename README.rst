@@ -198,6 +198,11 @@ License
 Changelog
 =========
 
+1.1.0
+-------
+
+- Updated embedded Clipper library to version 6.4.2.
+
 1.0.6
 -------
 -  Added support for Python 3.6.
