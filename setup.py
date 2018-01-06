@@ -64,7 +64,7 @@ with open("README.rst", "r", encoding='utf-8') as readme:
 setup(
     name='pyclipper',
     use_scm_version=True,
-    description='Cython wrapper for the C++ translation of the Angus Johnson\'s Clipper library (ver. 6.2.1)',
+    description='Cython wrapper for the C++ translation of the Angus Johnson\'s Clipper library (ver. 6.4.2)',
     long_description=long_description,
     author='Angus Johnson, Maxime Chalton, Lukas Treyer, Gregor Ratajc',
     author_email='me@gregorratajc.com',

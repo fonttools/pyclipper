@@ -10,7 +10,7 @@ About
 
 Pyclipper is a Cython wrapper exposing public functions and classes of
 the C++ translation of the `Angus Johnson's Clipper library (ver.
-6.2.1) <http://www.angusj.com/delphi/clipper.php>`__.
+6.4.2) <http://www.angusj.com/delphi/clipper.php>`__.
 
 Pyclipper releases were tested with Python 2.7 and 3.4 on Linux (Ubuntu
 14.04, x64) and Windows (8.1, x64).
