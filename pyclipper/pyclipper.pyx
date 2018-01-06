@@ -166,7 +166,8 @@ cdef extern from "clipper.hpp" namespace "ClipperLib":
         cInt bottom
 
     cdef cppclass Clipper:
-        Clipper(int initOptions=0)
+        Clipper(int initOptions)
+        Clipper()
         #~Clipper()
         void Clear()
         bool Execute(ClipType clipType, Paths & solution, PolyFillType subjFillType, PolyFillType clipFillType)
@@ -182,7 +183,9 @@ cdef extern from "clipper.hpp" namespace "ClipperLib":
         IntRect GetBounds()
 
     cdef cppclass ClipperOffset:
-        ClipperOffset(double miterLimit = 2.0, double roundPrecision = 0.25)
+        ClipperOffset(double miterLimit, double roundPrecision)
+        ClipperOffset(double miterLimit)
+        ClipperOffset()
         #~ClipperOffset()
         void AddPath(Path & path, JoinType joinType, EndType endType)
         void AddPaths(Paths & paths, JoinType joinType, EndType endType)
@@ -742,9 +745,7 @@ cdef class PyclipperOffset:
         More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/ClipperOffset/Methods/Constructor.htm
         """
         log_action("Creating an ClipperOffset instance")
-        self.thisptr = new ClipperOffset()
-        self.MiterLimit = miter_limit
-        self.ArcTolerance = arc_tolerance
+        self.thisptr = new ClipperOffset(miter_limit, arc_tolerance)
 
     def __dealloc__(self):
         log_action("Deleting the ClipperOffset instance")
