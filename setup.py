@@ -55,7 +55,7 @@ ext = Extension("pyclipper",
                 # Available definitions that can be used with pyclipper:
                 # use_lines, use_int32
                 # See pyclipper/clipper.hpp
-                define_macros=[('use_lines', 1)]
+                # define_macros=[('use_lines', 1)]
                 )
 
 with open("README.rst", "r", encoding='utf-8') as readme:
