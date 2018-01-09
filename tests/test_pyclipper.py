@@ -244,6 +244,13 @@ class TestPyclipperExecute(TestCase):
         self.assertIsInstance(solution, pyclipper.PyPolyNode)
         self.check_pypolynode(solution)
 
+    def test_execute_empty(self):
+        pc = pyclipper.Pyclipper()
+        with self.assertRaises(pyclipper.ClipperException):
+            pc.Execute(pyclipper.CT_UNION,
+                       pyclipper.PFT_NONZERO,
+                       pyclipper.PFT_NONZERO)
+
     def test_clear(self):
         self.pc.Clear()
         with self.assertRaises(pyclipper.ClipperException):
