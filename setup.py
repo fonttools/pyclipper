@@ -90,7 +90,6 @@ setup(
     ext_modules=[ext],
     setup_requires=[
        'setuptools_scm>=1.11.1',
-       'setuptools_scm_git_archive>=1.0',
     ] + pytest_runner,
     tests_require=['unittest2', 'pytest'],
     cmdclass=cmdclass,
