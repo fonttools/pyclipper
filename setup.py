@@ -68,6 +68,8 @@ setup(
     long_description=long_description,
     author='Angus Johnson, Maxime Chalton, Lukas Treyer, Gregor Ratajc',
     author_email='me@gregorratajc.com',
+    maintainer="Cosimo Lupo",
+    maintainer_email="cosimo@anthrotype.com",
     license='MIT',
     url='https://github.com/greginvm/pyclipper',
     keywords=[
