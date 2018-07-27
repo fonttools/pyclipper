@@ -184,7 +184,7 @@ Authors
 -  Bug fix `sympy.Zero` is not a collection by Jamie Bull (@jamiebull1),
 -  Travis CI and Appveyor CI integration for continuous builds of wheel packages by Cosimo Lupo (@anthrotype).
 
-The package is maintained by Cosimo Lupo (`@anthrotype <http://www.gregorratajc.com>`__).
+The package is maintained by Cosimo Lupo (`@anthrotype <https://github.com/anthrotype>`__).
 
 License
 =======
