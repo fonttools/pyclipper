@@ -16,7 +16,7 @@ Pyclipper releases were tested with Python 2.7 and 3.4 on Linux (Ubuntu
 14.04, x64) and Windows (8.1, x64).
 
 Source code is available on
-`GitHub <https://github.com/greginvm/pyclipper>`__. The package is published on 
+`GitHub <https://github.com/fonttools/pyclipper>`__. The package is published on 
 `PyPI <https://pypi.python.org/pypi/pyclipper>`__.
 
 
@@ -80,7 +80,7 @@ Clone the repository:
 
 ::
 
-        git clone git@github.com:greginvm/pyclipper.git
+        git clone git@github.com:fonttools/pyclipper.git
         
 
 Install:
@@ -168,7 +168,7 @@ Migrating from Pyclipper ``0.9.3b0``
 In previous version of Pyclipper (``0.9.3b0``) polygons could be automatically scaled using the ``SCALING_FACTOR`` variable. This was removed in version ``1.0.0`` due to inexact conversions related to floating point operations. This way the library now provides the original numerical robustness of the base library.
 
 The ``SCALING_FACTOR`` removal **breaks backward compatibility**. 
-For an explanation and help with migration, see https://github.com/greginvm/pyclipper/wiki/Deprecating-SCALING_FACTOR.
+For an explanation and help with migration, see https://github.com/fonttools/pyclipper/wiki/Deprecating-SCALING_FACTOR.
 
 Authors
 =======
@@ -184,7 +184,7 @@ Authors
 -  Bug fix `sympy.Zero` is not a collection by Jamie Bull (@jamiebull1),
 -  Travis CI and Appveyor CI integration for continuous builds of wheel packages by Cosimo Lupo (@anthrotype).
 
-The package is maintained by `Gregor Ratajc <http://www.gregorratajc.com>`__.
+The package is maintained by Cosimo Lupo (`@anthrotype <http://www.gregorratajc.com>`__).
 
 License
 =======
