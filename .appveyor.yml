@@ -75,13 +75,13 @@ install:
   # Install build and test dependencies
   - "%CMD_IN_ENV% pip install cython setuptools_scm setuptools_scm_git_archive sympy unittest2 pytest"
 
-build:
+build: off
+
+test_script:
   # create binary packages
   - "%CMD_IN_ENV% pip wheel -w wheelhouse ."
   # install wheel so we can test it
   - pip install --no-index --find-links wheelhouse pyclipper
-
-test_script:
   # Run the project tests
   - "%CMD_IN_ENV% pytest"
 
