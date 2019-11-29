@@ -91,6 +91,7 @@ setup(
     ],
     ext_modules=[ext],
     setup_requires=[
+       'cython>=0.28',
        'setuptools_scm>=1.11.1',
     ] + pytest_runner,
     tests_require=['unittest2', 'pytest'],

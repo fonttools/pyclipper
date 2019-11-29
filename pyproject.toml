@@ -3,4 +3,5 @@ requires = [
     "setuptools",
     "wheel",
     "setuptools_scm",
+    "cython",
 ]
