@@ -12,5 +12,5 @@ function run_tests {
     python -c "import sys; print(sys.version)"
     python -c "import struct; print(struct.calcsize('P') * 8)"
     # run the test suite
-    py.test -v ../tests
+    pytest -v ../tests
 }

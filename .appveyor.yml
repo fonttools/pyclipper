@@ -10,10 +10,6 @@ environment:
       PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "32"
 
-    - PYTHON: "C:\\Python34"
-      PYTHON_VERSION: "3.4"
-      PYTHON_ARCH: "32"
-
     - PYTHON: "C:\\Python35"
       PYTHON_VERSION: "3.5"
       PYTHON_ARCH: "32"
@@ -26,12 +22,12 @@ environment:
       PYTHON_VERSION: "3.7"
       PYTHON_ARCH: "32"
 
+    - PYTHON: "C:\\Python38"
+      PYTHON_VERSION: "3.8"
+      PYTHON_ARCH: "32"
+
     - PYTHON: "C:\\Python27-x64"
       PYTHON_VERSION: "2.7"
-      PYTHON_ARCH: "64"
-
-    - PYTHON: "C:\\Python34-x64"
-      PYTHON_VERSION: "3.4"
       PYTHON_ARCH: "64"
 
     - PYTHON: "C:\\Python35-x64"
@@ -46,20 +42,17 @@ environment:
       PYTHON_VERSION: "3.7"
       PYTHON_ARCH: "64"
 
+    - PYTHON: "C:\\Python38-x64"
+      PYTHON_VERSION: "3.8"
+      PYTHON_ARCH: "64"
+
+matrix:
+  fast_finish: true
+
 init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
 
 install:
-  # If there is a newer build queued for the same PR, cancel this one.
-  # The AppVeyor 'rollout builds' option is supposed to serve the same
-  # purpose but it is problematic because it tends to cancel builds pushed
-  # directly to master instead of just PR builds (or the converse).
-  # credits: JuliaLang developers.
-  - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -and $env:APPVEYOR_BUILD_NUMBER -ne ((Invoke-RestMethod `
-        https://ci.appveyor.com/api/projects/$env:APPVEYOR_ACCOUNT_NAME/$env:APPVEYOR_PROJECT_SLUG/history?recordsNumber=50).builds | `
-        Where-Object pullRequestId -eq $env:APPVEYOR_PULL_REQUEST_NUMBER)[0].buildNumber) { `
-          throw "There are newer queued builds for this pull request, failing early." }
-
   # Prepend newly installed Python to the PATH
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
 
@@ -88,7 +81,7 @@ build: off
 
 test_script:
   # Run the project tests
-  - "%CMD_IN_ENV% python setup.py test"
+  - "%CMD_IN_ENV% pytest"
 
 after_test:
   # If tests are successful, create binary packages
@@ -98,20 +91,3 @@ after_test:
 artifacts:
   # Archive the generated packages in the ci.appveyor.com build report
   - path: wheelhouse\*.whl
-
-#### Please replace the secure 'auth_token' below with your own.
-#### First, you need to generate a Github Personal API access token at
-#### https://github.com/settings/tokens, selecting scope 'public_repo'.
-#### Then, you encrypt it using https://ci.appveyor.com/tools/encrypt
-#### and paste it below.
-#### More info at: https://www.appveyor.com/docs/deployment/github/
-
-deploy:
-  # Deploy wheels on tags to GitHub Releases
-  - provider: GitHub
-    auth_token:
-      secure: 1c66/+HJrHWXxMTWNyLbbiVEsc0YE7yIJd60myQJKGvPQfjcnqQ34NjbrEEGcR85
-    draft: false
-    prerelease: false
-    on:
-      appveyor_repo_tag: true
