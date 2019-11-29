@@ -8,6 +8,8 @@ env:
     - TEST_DEPENDS="sympy unittest2 pytest"
     - PLAT=x86_64
     - UNICODE_WIDTH=32
+    - TWINE_USERNAME="anthrotype"
+    - secure: sX3wbNcie0SOjV9r/7IqkmqDlBY5trhFLIGUzQmo0gdiKxSWM/07HkIbAHhXZB/nINkXGtWuhNdE3OQsh6MilODU5krE8hOOvfhh2lyrWVFk8BQstyeKZVlhGRX8GQfOViaOBncybnqPR5ovmAAo0whg+8qtL+kCE7MtmvG9WAQeeyhu45lg25ac/ZrUkJv1y/rjW9EuRDidGquU/1xcRe3s1H/2OnVvWaUgbU2KwTWQ2DRnXXeMdP3OgY8o818c7utjCt+gGaDmJgoJH0Bz8OiuNAZJrODp/0L/LeLDzyoI0Yc3osDlv5xnJq7Fsyer1ihV6ZuAaXZU1TkJvH4B5CeMWIUcWLxA3sOrAn3DDMO3ZdvsvYPOaCuI/k/4RCPZyV57h76Ibm6Qir71Fe4oNpIRiQm/zfD2H6Ez+E1R0u4SgPRsPFsD/YGF58vvP8KHliTMJCM27p5+ai6+ZDB0r7sLRVk0w/HLElRMNmpIcCEDcIjkZS95xffxRcQSXvj1otDDGcNxao4OxPdzbt2zIUZgsN+5uFjA3A0iAWwXd1/Auy11uqG+abDTxg5mAxQ0ovVsvL3Mle6CfvEp7e1mvpHxZRFARpjTH24Gt8nGGcakLeddhy43z0jpJxmYVxnPloDHTbSzvRnubwY0oIe3cZSbcxSJh1qWdzD66FNul5c=
 
 # Travis only clones the latest 50 commits. We need the full repository to
 # compute the version string from the git metadata:
@@ -40,7 +42,6 @@ matrix:
     - os: linux
       env:
         - MB_PYTHON_VERSION=3.5
-        - BUILD_SDIST=true
     - os: linux
       env:
         - MB_PYTHON_VERSION=3.5
@@ -48,6 +49,7 @@ matrix:
     - os: linux
       env:
         - MB_PYTHON_VERSION=3.6
+        - BUILD_SDIST=true
     - os: linux
       env:
         - MB_PYTHON_VERSION=3.6
@@ -94,5 +96,14 @@ script:
   - install_run $PLAT
 
 after_success:
-  # if tagged, create the source distribution for the deploy stage
-  - if [ -n "$TRAVIS_TAG" ] && [ "$BUILD_SDIST" == true ]; then pip install cython; pip install -U setuptools; python setup.py sdist -d ${TRAVIS_BUILD_DIR}/wheelhouse; fi
+  # if tagged, upload wheels (and sdist) to PyPI
+  - |
+    if [ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_REPO_SLUG" == "fonttools/pyclipper" ]; then
+      pip install --upgrade twine
+      twine upload wheelhouse/*.whl
+      if [ "$BUILD_SDIST" == true ]; then
+        pip install --upgrade cython setuptools
+        python setup.py sdist
+        twine upload dist/*.zip
+      fi
+    fi
