@@ -5,7 +5,7 @@ env:
     # pip dependencies to _build_ project
     - BUILD_DEPENDS="Cython setuptools>=25 setuptools_scm setuptools_scm_git_archive"
     # pip dependencies to _test_ project
-    - TEST_DEPENDS="sympy unittest2 pytest"
+    - TEST_DEPENDS="sympy pytest"
     - PLAT=x86_64
     - UNICODE_WIDTH=32
     - TWINE_USERNAME="anthrotype"

@@ -75,7 +75,7 @@ install:
   - "python -c \"import sys; print(sys.executable)\""
 
   # Install build and test dependencies
-  - "%CMD_IN_ENV% pip install cython setuptools_scm setuptools_scm_git_archive sympy unittest2 pytest"
+  - "%CMD_IN_ENV% pip install cython setuptools_scm setuptools_scm_git_archive sympy pytest"
 
 build: off
 
