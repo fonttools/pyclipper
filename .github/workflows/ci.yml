@@ -1,0 +1,139 @@
+name: Build + Deploy
+
+on:
+  push:
+    branches: [master]
+    tags: ["v*.*.*"]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9]
+        os: [ubuntu-latest, macos-latest]
+        platform: [x64]
+    env:
+      PROJECT_NAME: "pyclipper"
+      REPO_DIR: "."
+      PLAT: "x86_64"
+      UNICODE_WIDTH: 32
+      BUILD_DEPENDS: "Cython setuptools>=25 setuptools_scm setuptools_scm_git_archive"
+      TEST_DEPENDS: "sympy unittest2 pytest"
+      MB_PYTHON_VERSION: ${{ matrix.python-version }}
+      TRAVIS_PYTHON_VERSION: ${{ matrix.python-version }}
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Set up environment variables
+      run: |
+        if [ "macos-latest" == "${{ matrix.os }}" ]; then
+          echo "TRAVIS_OS_NAME=osx" >> $GITHUB_ENV
+        else
+          echo "TRAVIS_OS_NAME=ubuntu" >> $GITHUB_ENV
+        fi
+    - name: Install virtualenv
+      run: |
+        python -m pip install --upgrade pip
+        pip install virtualenv
+    - name: Build and Install Wheels
+      run: |
+        source multibuild/common_utils.sh
+        source multibuild/travis_steps.sh
+        echo "------- BEFORE INSTALL --------"
+        before_install
+        echo "------- BUILD WHEEL --------"
+        build_wheel $REPO_DIR $PLAT
+        echo "------- INSTALL_RUN --------"
+        install_run $PLAT
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.PROJECT_NAME }}-${{ env.TRAVIS_OS_NAME }}-${{ matrix.python-version }}
+        path: wheelhouse/*.whl
+
+  deploy:
+    # only run if the commit is tagged...
+    if: startsWith(github.ref, 'refs/tags/v')
+    # ... and all build jobs completed successfully
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.x"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine
+    - name: Download artifacts from build jobs
+      uses: actions/download-artifact@v2
+      with:
+        path: wheelhouse/
+    - name: Move wheels to dist/ directory
+      run: |
+        ls wheelhouse/*
+        mkdir -p dist/
+        for wheel_dir in wheelhouse/${{ env.PROJECT_NAME }}*/; do
+          mv "${wheel_dir}"/*.whl dist/
+        done
+    - name: Extract release notes from annotated tag message
+      id: release_notes
+      env:
+        # e.g. v0.1.0a1, v1.2.0b2 or v2.3.0rc3, but not v1.0.0
+        PRERELEASE_TAG_PATTERN: "v[[:digit:]]+\\.[[:digit:]]+\\.[[:digit:]]+([ab]|rc)[[:digit:]]+"
+      run: |
+        # GH checkout action doesn't preserve tag annotations, we must fetch them
+        # https://github.com/actions/checkout/issues/290
+        git fetch --tags --force
+        # strip leading 'refs/tags/' to get the tag name
+        TAG_NAME="${GITHUB_REF##*/}"
+        # Dump tag message to temporary .md file (excluding the PGP signature at the bottom)
+        TAG_MESSAGE=$(git tag -l --format='%(contents)' $TAG_NAME | sed -n '/-----BEGIN PGP SIGNATURE-----/q;p')
+        echo "$TAG_MESSAGE" > "${{ runner.temp }}/release_notes.md"
+        # if the tag has a pre-release suffix mark the Github Release accordingly
+        if egrep -q "$PRERELEASE_TAG_PATTERN" <<< "$TAG_NAME"; then
+          echo "Tag contains a pre-release suffix"
+          echo "IS_PRERELEASE=true" >> "$GITHUB_ENV"
+        else
+          echo "Tag does not contain pre-release suffix"
+          echo "IS_PRERELEASE=false" >> "$GITHUB_ENV"
+        fi
+    - name: Create GitHub release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        # This token is provided by Actions, you do not need to create your own token
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: ${{ github.ref }}
+        body_path: "${{ runner.temp }}/release_notes.md"
+        draft: false
+        prerelease: ${{ env.IS_PRERELEASE }}
+    - name: Build and publish
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      run: |
+        if [ "$IS_PRERELEASE" == true ]; then
+          echo "DEBUG: This is a pre-release"
+        else
+          echo "DEBUG: This is a final release"
+        fi
+        python setup.py sdist
+        twine upload dist/*
