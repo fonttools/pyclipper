@@ -273,7 +273,7 @@ class TestPyclipperExecute(TestCase):
         assert result == path
 
     def check_pypolynode(self, node):
-        self.assertTrue(len(node.Contour) is 0 or len(node.Contour) > 2)
+        self.assertTrue(len(node.Contour) == 0 or len(node.Contour) > 2)
 
         # check vertex coordinate, should not be an iterable (in that case
         # that means that node.Contour is a list of paths, should be path
