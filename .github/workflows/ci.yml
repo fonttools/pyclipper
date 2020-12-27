@@ -124,7 +124,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install setuptools wheel twine
+        pip install --upgrade setuptools wheel twine
+        pip install ${{ env.BUILD_DEPENDS }}
     - name: Download artifacts from build jobs
       uses: actions/download-artifact@v2
       with:
