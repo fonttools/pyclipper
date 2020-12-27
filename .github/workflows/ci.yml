@@ -63,7 +63,7 @@ jobs:
         install_run $PLAT
     - uses: actions/upload-artifact@v2
       with:
-        name: ${{ env.PROJECT_NAME }}-${{ matrix.os }}-${{ matrix.platform }}-py${{ matrix.python-version }}
+        name: ${{ env.PROJECT_NAME }}-${{ env.TRAVIS_OS_NAME }}-${{ matrix.platform }}-py${{ matrix.python-version }}
         path: wheelhouse/*.whl
 
   build_win:
@@ -102,7 +102,7 @@ jobs:
         pytest
     - uses: actions/upload-artifact@v2
       with:
-        name: ${{ env.PROJECT_NAME }}-${{ matrix.os }}-${{ matrix.platform }}-py${{ matrix.python-version }}
+        name: ${{ env.PROJECT_NAME }}-win-${{ matrix.platform }}-py${{ matrix.python-version }}
         path: wheelhouse/*.whl
 
   deploy:
