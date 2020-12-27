@@ -3,10 +3,8 @@ About
 
 .. image:: https://badge.fury.io/py/pyclipper.svg
     :target: https://badge.fury.io/py/pyclipper
-.. image:: https://travis-ci.org/fonttools/pyclipper.svg?branch=master
-    :target: https://travis-ci.org/fonttools/pyclipper
-.. image:: https://ci.appveyor.com/api/projects/status/kahji42bem2ttkvj/branch/master?svg=true
-    :target: https://ci.appveyor.com/project/fonttools/pyclipper/branch/master
+.. image:: https://github.com/fonttools/pyclipper/workflows/Build%20+%20Deploy/badge.svg
+    :target: https://github.com/fonttools/pyclipper/actions?query=workflow%3A%22Build+%2B+Deploy%22
 
 Pyclipper is a Cython wrapper exposing public functions and classes of
 the C++ translation of the `Angus Johnson's Clipper library (ver.
