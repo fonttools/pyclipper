@@ -24,7 +24,10 @@ jobs:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9]
         os: [ubuntu-latest, macos-latest]
-        platform: [x64]
+        platform: [x64, aarch64]
+        exclude:
+          - os: macos-latest
+            platform: aarch64
     env:
       REPO_DIR: "."
       PLAT: "x86_64"
@@ -40,7 +43,9 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-        architecture: ${{ matrix.platform }}
+    - name: Set up QEMU
+      if: ${{ matrix.platform == 'aarch64' }}
+      uses: docker/setup-qemu-action@v1
     - name: Set up environment variables
       run: |
         if [ "macos-latest" == "${{ matrix.os }}" ]; then
@@ -48,6 +53,12 @@ jobs:
         else
           echo "TRAVIS_OS_NAME=ubuntu" >> $GITHUB_ENV
         fi
+    - name: Setup multibuild environment variables for aarch64
+      if: startsWith(matrix.platform,'aarch64')
+      run: |
+        echo "MB_ML_VER=2014" >> $GITHUB_ENV
+        echo "PLAT=aarch64" >> $GITHUB_ENV
+        echo "DOCKER_TEST_IMAGE=multibuild/xenial_arm64v8" >> $GITHUB_ENV
     - name: Install virtualenv
       run: |
         python -m pip install --upgrade pip
