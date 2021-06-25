@@ -37,8 +37,6 @@ class TestPyclipperModule(TestCase):
 
 
 class TestNamespaceMethods(TestCase):
-    def setUp(self):
-        pyclipper.SCALING_FACTOR = 1
 
     def test_orientation(self):
         self.assertFalse(pyclipper.Orientation(PATH_SUBJ_1))
@@ -166,7 +164,6 @@ class TestFilterPyPolyNode(TestCase):
 
 class TestPyclipperAddPaths(TestCase):
     def setUp(self):
-        pyclipper.SCALING_FACTOR = 1
         self.pc = pyclipper.Pyclipper()
 
     def test_add_path(self):
@@ -202,16 +199,13 @@ class TestClassProperties(TestCase):
             self.check_property_assignment(pc, prop_name, [True, False])
 
     def test_pyclipperoffset_properties(self):
-        for factor in range(6):
-            pyclipper.SCALING_FACTOR = 10 ** factor
-            pc = pyclipper.PyclipperOffset()
-            for prop_name in ('MiterLimit', 'ArcTolerance'):
-                self.check_property_assignment(pc, prop_name, [2.912, 132.12, 12, -123])
+        pc = pyclipper.PyclipperOffset()
+        for prop_name in ('MiterLimit', 'ArcTolerance'):
+            self.check_property_assignment(pc, prop_name, [2.912, 132.12, 12, -123])
 
 
 class TestPyclipperExecute(TestCase):
     def setUp(self):
-        pyclipper.SCALING_FACTOR = 1
         self.pc = pyclipper.Pyclipper()
         self.add_default_paths(self.pc)
         self.default_args = [pyclipper.CT_INTERSECTION, pyclipper.PFT_EVENODD, pyclipper.PFT_EVENODD]
@@ -285,8 +279,6 @@ class TestPyclipperExecute(TestCase):
 
 
 class TestPyclipperOffset(TestCase):
-    def setUp(self):
-        pyclipper.SCALING_FACTOR = 1
 
     @staticmethod
     def add_path(pc, path):
@@ -314,44 +306,6 @@ class TestPyclipperOffset(TestCase):
         solution = pc.Execute(2.0)
         self.assertIsInstance(solution, list)
         self.assertEqual(len(solution), 0)
-
-
-class TestScalingFactorWarning(TestCase):
-    def setUp(self):
-        pyclipper.SCALING_FACTOR = 2.
-        self.pc = pyclipper.Pyclipper()
-
-    def test_orientation(self):
-        with self.assertWarns(DeprecationWarning):
-            pyclipper.Orientation(PATH_SUBJ_1)
-
-    def test_area(self):
-        with self.assertWarns(DeprecationWarning):
-            pyclipper.Area(PATH_SUBJ_1)
-
-    def test_point_in_polygon(self):
-        with self.assertWarns(DeprecationWarning):
-            self.assertEqual(pyclipper.PointInPolygon((180, 200), PATH_SUBJ_1), -1)
-
-    def test_minkowski_sum(self):
-        with self.assertWarns(DeprecationWarning):
-            pyclipper.MinkowskiSum(PATTERN, PATH_SIGMA, False)
-
-    def test_minkowski_sum2(self):
-        with self.assertWarns(DeprecationWarning):
-            pyclipper.MinkowskiSum2(PATTERN, [PATH_SIGMA], False)
-
-    def test_minkowski_diff(self):
-        with self.assertWarns(DeprecationWarning):
-            pyclipper.MinkowskiDiff(PATH_SUBJ_1, PATH_SUBJ_2)
-
-    def test_add_path(self):
-        with self.assertWarns(DeprecationWarning):
-            self.pc.AddPath(PATH_CLIP_1, poly_type=pyclipper.PT_CLIP)
-
-    def test_add_paths(self):
-        with self.assertWarns(DeprecationWarning):
-            self.pc.AddPaths([PATH_SUBJ_1, PATH_SUBJ_2], poly_type=pyclipper.PT_SUBJECT)
 
 
 class TestScalingFunctions(TestCase):
@@ -419,6 +373,12 @@ class TestNonStandardNumbers(TestCase):
         assert type(path[0].x) == Zero
         path = pyclipper.scale_to_clipper(path)
         assert path == [[0, 0], [0, 2147483648]]
+
+
+class TestPackageVersion(TestCase):
+    def test__version__(self):
+        assert hasattr(pyclipper, "__version__")
+        assert isinstance(pyclipper.__version__, str)
 
 
 def _do_solutions_match(paths_1, paths_2, factor=None):

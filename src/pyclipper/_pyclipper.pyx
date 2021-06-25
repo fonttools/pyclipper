@@ -8,12 +8,6 @@ This wrapper was written by Maxime Chalton, Lukas Treyer and Gregor Ratajc.
 
 SILENT = True
 
-"""
-SCALING_FACTOR has been deprecated. See https://github.com/greginvm/pyclipper/wiki/Deprecating-SCALING_FACTOR
-for an explanation.
-"""
-SCALING_FACTOR = 1
-
 
 def log_action(description):
     if not SILENT:
@@ -670,8 +664,6 @@ cdef class Pyclipper:
         Returns:
         PyIntRect with left, right, bottom, top vertices that define the axis-aligned bounding rectangle.
         """
-        _check_scaling_factor()
-        
         cdef IntRect rr
         with nogil:
             rr = <IntRect> self.thisptr.GetBounds()
@@ -860,13 +852,9 @@ cdef class PyclipperOffset:
         More info: http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/ClipperOffset/Properties/ArcTolerance.htm
         """
         def __get__(self):
-            _check_scaling_factor()
-
             return self.thisptr.ArcTolerance
 
         def __set__(self, value):
-            _check_scaling_factor()
-
             self.thisptr.ArcTolerance = value
 
 
@@ -926,8 +914,6 @@ cdef Paths _to_clipper_paths(object polygons):
 
 
 cdef Path _to_clipper_path(object polygon):
-    _check_scaling_factor()
-
     cdef Path path = Path()
     cdef IntPoint p
     for v in polygon:
@@ -952,21 +938,9 @@ cdef object _from_clipper_paths(Paths paths):
 
 
 cdef object _from_clipper_path(Path path):
-    _check_scaling_factor()
-
     poly = []
     cdef IntPoint point
     for i in xrange(path.size()):
         point = path[i]
         poly.append([point.X, point.Y])
     return poly
-
-
-def _check_scaling_factor():
-    """
-    Check whether SCALING_FACTOR has been set by the code using this library and warn the user that it has been
-    deprecated and it's value is ignored.
-    """
-
-    if SCALING_FACTOR != 1:
-        _warnings.warn('SCALING_FACTOR is deprecated and it\'s value is ignored. See https://github.com/greginvm/pyclipper/wiki/Deprecating-SCALING_FACTOR for more information.', DeprecationWarning)

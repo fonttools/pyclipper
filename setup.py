@@ -1,7 +1,7 @@
 from __future__ import print_function
 import sys
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 from setuptools.extension import Extension
 from io import open
 
@@ -23,7 +23,7 @@ if dev_mode:
     from Cython.Distutils import build_ext
 
     print('Development mode: Compiling Cython modules from .pyx sources.')
-    sources = ["pyclipper/pyclipper.pyx", "pyclipper/clipper.cpp"]
+    sources = ["src/pyclipper/_pyclipper.pyx", "src/clipper.cpp"]
 
     from setuptools.command.sdist import sdist as _sdist
 
@@ -40,7 +40,7 @@ if dev_mode:
 
 else:
     print('Distribution mode: Compiling Cython generated .cpp sources.')
-    sources = ["pyclipper/pyclipper.cpp", "pyclipper/clipper.cpp"]
+    sources = ["src/pyclipper/_pyclipper.cpp", "src/clipper.cpp"]
     cmdclass = {}
 
 
@@ -48,13 +48,14 @@ needs_pytest = {'pytest', 'test'}.intersection(sys.argv)
 pytest_runner = ['pytest_runner'] if needs_pytest else []
 
 
-ext = Extension("pyclipper",
+ext = Extension("pyclipper._pyclipper",
                 sources=sources,
                 language="c++",
+                include_dirs=["src"],
                 # define extra macro definitions that are used by clipper
                 # Available definitions that can be used with pyclipper:
                 # use_lines, use_int32
-                # See pyclipper/clipper.hpp
+                # See src/clipper.hpp
                 # define_macros=[('use_lines', 1)]
                 )
 
@@ -63,7 +64,7 @@ with open("README.rst", "r", encoding='utf-8') as readme:
 
 setup(
     name='pyclipper',
-    use_scm_version=True,
+    use_scm_version={"write_to": "src/pyclipper/_version.py"},
     description='Cython wrapper for the C++ translation of the Angus Johnson\'s Clipper library (ver. 6.4.2)',
     long_description=long_description,
     author='Angus Johnson, Maxime Chalton, Lukas Treyer, Gregor Ratajc',
@@ -89,6 +90,8 @@ setup(
         "Topic :: Scientific/Engineering :: Mathematics",
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
+    package_dir={"": "src"},
+    packages=find_packages(where="src"),
     ext_modules=[ext],
     setup_requires=[
        'cython>=0.28',
