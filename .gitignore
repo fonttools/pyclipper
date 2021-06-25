@@ -3,7 +3,8 @@ build
 dist
 pyclipper.egg-info
 *.so
-pyclipper/pyclipper.cpp
+src/pyclipper/_pyclipper.cpp
+src/pyclipper/_version.py
 *.pyc
 MANIFEST
 .eggs/

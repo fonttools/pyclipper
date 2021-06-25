@@ -3,7 +3,7 @@
 
 # Here we only need to include those which are not tracked by git but we do
 # want to be included
-include pyclipper/pyclipper.cpp
+include src/pyclipper/_pyclipper.cpp
 
 # and exclude those that are tracked by git but don't want to be in the sdist
 exclude dev
