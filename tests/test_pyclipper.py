@@ -375,6 +375,12 @@ class TestNonStandardNumbers(TestCase):
         assert path == [[0, 0], [0, 2147483648]]
 
 
+class TestPackageVersion(TestCase):
+    def test__version__(self):
+        assert hasattr(pyclipper, "__version__")
+        assert isinstance(pyclipper.__version__, str)
+
+
 def _do_solutions_match(paths_1, paths_2, factor=None):
     if len(paths_1) != len(paths_2):
         return False
