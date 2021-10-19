@@ -4,7 +4,10 @@ Tests for Pyclipper wrapper library.
 """
 
 from __future__ import print_function
-from unittest2 import TestCase, main
+try:
+  from unittest2 import TestCase, main
+except ImportError:
+  from unittest import TestCase, main
 import sys
 
 if sys.version_info < (3,):
