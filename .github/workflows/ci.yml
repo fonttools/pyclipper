@@ -17,9 +17,8 @@ jobs:
     name: Build Source Distribution
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
       with:
-        submodules: true
         # setuptools_scm won't work with shallow clone; fetch all history
         fetch-depth: 0
     - name: Set up Python
@@ -72,7 +71,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        submodules: recursive
+        fetch-depth: 0
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -101,7 +100,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        submodules: true
+        fetch-depth: 0
     - uses: docker/setup-qemu-action@v1.2.0
       with:
         platforms: all
