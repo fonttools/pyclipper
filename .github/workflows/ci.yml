@@ -45,6 +45,7 @@ jobs:
         os: [macos-latest, windows-latest]
         arch: [auto64]
         build: ["*"]
+        skip: ["pp*"]
         include:
           # the manylinux1 docker images only contain from python3.6 to 3.9
           - os: ubuntu-latest
@@ -57,17 +58,19 @@ jobs:
           - os: ubuntu-latest
             arch: auto64
             type: manylinux2010
-            build: "pp* cp310-*"
+            build: "pp*-manylinux* cp310-manylinux*"
             CIBW_MANYLINUX_X86_64_IMAGE: manylinux2010
             CIBW_MANYLINUX_I686_IMAGE: manylinux2010
 
           - os: macos-latest
             arch: universal2
             build: "*"
+            skip: "pp*"
 
           - os: windows-latest
             arch: auto32
             build: "*"
+            skip: "pp*"
     steps:
     - uses: actions/checkout@v2
       with:
@@ -85,6 +88,7 @@ jobs:
         CIBW_MANYLINUX_I686_IMAGE: ${{ matrix.CIBW_MANYLINUX_I686_IMAGE }}
         CIBW_MANYLINUX_X86_64_IMAGE: ${{ matrix.CIBW_MANYLINUX_X86_64_IMAGE }}
         CIBW_ARCHS: ${{ matrix.arch }}
+        CIBW_SKIP: ${{ matrix.skip }}
     - uses: actions/upload-artifact@v2
       with:
         path: wheelhouse/*.whl
