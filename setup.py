@@ -33,7 +33,7 @@ if dev_mode:
         """
         def run(self):
             from Cython.Build import cythonize
-            cythonize(sources, language='c++')
+            cythonize(sources, language_level="2")
             _sdist.run(self)
 
     cmdclass = {'sdist': sdist, 'build_ext': build_ext}
@@ -67,6 +67,7 @@ setup(
     use_scm_version={"write_to": "src/pyclipper/_version.py"},
     description='Cython wrapper for the C++ translation of the Angus Johnson\'s Clipper library (ver. 6.4.2)',
     long_description=long_description,
+    long_description_content_type="text/x-rst",
     author='Angus Johnson, Maxime Chalton, Lukas Treyer, Gregor Ratajc',
     author_email='me@gregorratajc.com',
     maintainer="Cosimo Lupo",
