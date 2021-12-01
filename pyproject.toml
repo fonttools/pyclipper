@@ -3,5 +3,8 @@ requires = [
     "setuptools",
     "wheel",
     "setuptools_scm",
+    "setuptools_scm_git_archive",
     "cython",
 ]
+
+build-backend = "setuptools.build_meta"

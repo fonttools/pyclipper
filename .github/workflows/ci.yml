@@ -2,19 +2,39 @@ name: Build + Deploy
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     tags: ["*.*.*"]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 env:
-  PROJECT_NAME: "pyclipper"
-  BUILD_DEPENDS: "Cython setuptools>=25 setuptools_scm setuptools_scm_git_archive"
-  TEST_DEPENDS: "sympy unittest2 pytest"
+  CIBW_TEST_REQUIRES: "sympy pytest"
+  CIBW_TEST_COMMAND: pytest {package}/tests -v
 
 jobs:
-  build_unix:
 
+  build_sdist:
+    name: Build Source Distribution
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        # setuptools_scm won't work with shallow clone; fetch all history
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.x"
+    - name: Build sdist
+      run: pipx run build --sdist
+    - name: Check metadata
+      run: pipx run twine check dist/*.tar.gz
+    - uses: actions/upload-artifact@v2
+      with:
+        path: dist/*.tar.gz
+
+  build_wheels:
+    name: ${{ matrix.type }} ${{ matrix.arch }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -22,121 +42,96 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
-        os: [ubuntu-latest, macos-latest]
-        platform: [x64]
-    env:
-      REPO_DIR: "."
-      PLAT: "x86_64"
-      UNICODE_WIDTH: 32
-      MB_PYTHON_VERSION: ${{ matrix.python-version }}
-      TRAVIS_PYTHON_VERSION: ${{ matrix.python-version }}
+        os: [macos-latest, windows-latest]
+        arch: [auto64]
+        build: ["*"]
+        skip: ["pp*"]
+        include:
+          # the manylinux1 docker images only contain from python3.6 to 3.9
+          - os: ubuntu-latest
+            type: manylinux1
+            arch: auto64
+            build: "cp{36,37,38,39}-manylinux*"
+            CIBW_MANYLINUX_X86_64_IMAGE: manylinux1
+            CIBW_MANYLINUX_I686_IMAGE: manylinux1
+          # the manylinux2010 image also contains python 3.10
+          - os: ubuntu-latest
+            arch: auto64
+            type: manylinux2010
+            build: "pp*-manylinux* cp310-manylinux*"
+            CIBW_MANYLINUX_X86_64_IMAGE: manylinux2010
+            CIBW_MANYLINUX_I686_IMAGE: manylinux2010
 
+          - os: macos-latest
+            arch: universal2
+            build: "*"
+            skip: "pp*"
+
+          - os: windows-latest
+            arch: auto32
+            build: "*"
+            skip: "pp*"
     steps:
     - uses: actions/checkout@v2
       with:
-        submodules: recursive
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-        architecture: ${{ matrix.platform }}
-    - name: Set up environment variables
-      run: |
-        if [ "macos-latest" == "${{ matrix.os }}" ]; then
-          echo "TRAVIS_OS_NAME=osx" >> $GITHUB_ENV
-        else
-          echo "TRAVIS_OS_NAME=ubuntu" >> $GITHUB_ENV
-        fi
-    - name: Install virtualenv
-      run: |
-        python -m pip install --upgrade pip
-        pip install virtualenv
-    - name: Build and Install Wheels
-      run: |
-        source multibuild/common_utils.sh
-        source multibuild/travis_steps.sh
-        echo "------- BEFORE INSTALL --------"
-        before_install
-        echo "------- BUILD WHEEL --------"
-        build_wheel $REPO_DIR $PLAT
-        echo "------- INSTALL_RUN --------"
-        install_run $PLAT
-    - uses: actions/upload-artifact@v2
-      with:
-        name: ${{ env.PROJECT_NAME }}-py${{ matrix.python-version }}-${{ env.TRAVIS_OS_NAME }}-${{ matrix.platform }}
-        path: wheelhouse/*.whl
-
-  build_win:
-    runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
-        platform: [x64, x86]
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: recursive
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-        architecture: ${{ matrix.platform }}
-    - name: Set up virtual environment
-      run: |
-        python -m pip install --upgrade virtualenv
-        python -m virtualenv venv
-        venv\Scripts\activate
-        python -c "import sys; print(sys.version); print(sys.executable)"
-        python -m pip install --upgrade pip
-        pip install --upgrade setuptools wheel
-        pip install ${{ env.BUILD_DEPENDS }}
-        pip install ${{ env.TEST_DEPENDS }}
-    - name: Build wheel
-      run: |
-        venv\Scripts\activate
-        pip wheel --no-deps -w wheelhouse .
-    - name: Run the tests
-      run: |
-        venv\Scripts\activate
-        pip install --no-index --find-links wheelhouse ${{ env.PROJECT_NAME }}
-        pytest
-    - uses: actions/upload-artifact@v2
-      with:
-        name: ${{ env.PROJECT_NAME }}-py${{ matrix.python-version }}-win-${{ matrix.platform }}
-        path: wheelhouse/*.whl
-
-  deploy:
-    # only run if the commit is tagged...
-    if: startsWith(github.ref, 'refs/tags/')
-    # ... and all build jobs completed successfully
-    needs:
-        - build_unix
-        - build_win
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
+        fetch-depth: 0
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: "3.x"
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install --upgrade setuptools wheel twine
-        pip install ${{ env.BUILD_DEPENDS }}
-    - name: Download artifacts from build jobs
-      uses: actions/download-artifact@v2
+      run: pip install cibuildwheel
+    - name: Build Wheels
+      run: python -m cibuildwheel --output-dir wheelhouse .
+      env:
+        CIBW_BUILD: ${{ matrix.build }}
+        CIBW_MANYLINUX_I686_IMAGE: ${{ matrix.CIBW_MANYLINUX_I686_IMAGE }}
+        CIBW_MANYLINUX_X86_64_IMAGE: ${{ matrix.CIBW_MANYLINUX_X86_64_IMAGE }}
+        CIBW_ARCHS: ${{ matrix.arch }}
+        CIBW_SKIP: ${{ matrix.skip }}
+    - uses: actions/upload-artifact@v2
       with:
-        path: wheelhouse/
-    - name: Move wheels to dist/ directory
-      run: |
-        ls wheelhouse/*
-        mkdir -p dist/
-        for wheel_dir in wheelhouse/${{ env.PROJECT_NAME }}*/; do
-          mv "${wheel_dir}"/*.whl dist/
-        done
+        path: wheelhouse/*.whl
+
+  build_arch_wheels:
+    name: py${{ matrix.python }} on ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # aarch64 uses qemu so it's slow, build each py version in parallel jobs
+        python: [36, 37, 38, 39, 310]
+        arch: [aarch64]
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - uses: docker/setup-qemu-action@v1.2.0
+      with:
+        platforms: all
+    - name: Install dependencies
+      run: pip install cibuildwheel
+    - name: Build Wheels
+      run: python -m cibuildwheel --output-dir wheelhouse .
+      env:
+        CIBW_BUILD: cp${{ matrix.python }}-manylinux*
+        CIBW_ARCHS: ${{ matrix.arch }}
+    - uses: actions/upload-artifact@v2
+      with:
+        path: wheelhouse/*.whl
+
+  deploy:
+    name: Upload if tagged commit
+    if: startsWith(github.ref, 'refs/tags/')
+    # but only if all build jobs completed successfully
+    needs: [build_wheels, build_arch_wheels, build_sdist]
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/download-artifact@v2
+      with:
+        name: artifact
+        path: dist
+
     - name: Extract release notes from annotated tag message
       id: release_notes
       env:
@@ -159,6 +154,7 @@ jobs:
           echo "Tag does not contain pre-release suffix"
           echo "IS_PRERELEASE=false" >> "$GITHUB_ENV"
         fi
+
     - name: Create GitHub release
       id: create_release
       uses: actions/create-release@v1
@@ -171,15 +167,8 @@ jobs:
         body_path: "${{ runner.temp }}/release_notes.md"
         draft: false
         prerelease: ${{ env.IS_PRERELEASE }}
-    - name: Build and publish
-      env:
-        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: |
-        if [ "$IS_PRERELEASE" == true ]; then
-          echo "DEBUG: This is a pre-release"
-        else
-          echo "DEBUG: This is a final release"
-        fi
-        python setup.py sdist
-        twine upload dist/*
+
+    - uses: pypa/gh-action-pypi-publish@v1.4.2
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_PASSWORD }}
