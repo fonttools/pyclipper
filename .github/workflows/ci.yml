@@ -2,10 +2,10 @@ name: Build + Deploy
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     tags: ["*.*.*"]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 env:
   CIBW_TEST_REQUIRES: "sympy pytest"
