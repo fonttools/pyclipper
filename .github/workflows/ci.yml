@@ -58,9 +58,16 @@ jobs:
           - os: ubuntu-latest
             arch: auto64
             type: manylinux2010
-            build: "pp*-manylinux* cp310-manylinux*"
+            build: "pp37-manylinux* pp38-manylinux* cp310-manylinux*"
             CIBW_MANYLINUX_X86_64_IMAGE: manylinux2010
             CIBW_MANYLINUX_I686_IMAGE: manylinux2010
+          # pypy3.9 only works with manylinux2014 image
+          - os: ubuntu-latest
+            arch: auto64
+            type: manylinux2014
+            build: "pp39-manylinux*"
+            CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+            CIBW_MANYLINUX_I686_IMAGE: manylinux2014
 
           - os: macos-latest
             arch: universal2
