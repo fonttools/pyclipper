@@ -1,4 +1,5 @@
 # distutils: language=c++
+# cython: language_level=2
 """
 Cython wrapper for the C++ translation of the Angus Johnson's Clipper
 library (ver. 6.2.1) (http://www.angusj.com/delphi/clipper.php)
