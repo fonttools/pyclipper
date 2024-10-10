@@ -61,11 +61,11 @@ jobs:
             build: "pp37-manylinux* pp38-manylinux* cp310-manylinux*"
             CIBW_MANYLINUX_X86_64_IMAGE: manylinux2010
             CIBW_MANYLINUX_I686_IMAGE: manylinux2010
-          # the manylinux2014 image also contains pypy3.9 and CPython 3.11 and 3.12
+          # the manylinux2014 image also contains pypy3.9, and CPython 3.11, 3.12 and 3.13
           - os: ubuntu-latest
             arch: auto64
             type: manylinux2014
-            build: "pp39-manylinux* cp311-manylinux* cp312-manylinux*"
+            build: "pp39-manylinux* cp311-manylinux* cp312-manylinux* cp313-manylinux*"
             CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
             CIBW_MANYLINUX_I686_IMAGE: manylinux2014
 
@@ -106,7 +106,7 @@ jobs:
     strategy:
       matrix:
         # aarch64 uses qemu so it's slow, build each py version in parallel jobs
-        python: [36, 37, 38, 39, 310, 311, 312]
+        python: [36, 37, 38, 39, 310, 311, 312, 313]
         arch: [aarch64]
     steps:
     - uses: actions/checkout@v2
