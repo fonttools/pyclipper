@@ -17,21 +17,22 @@ jobs:
     name: Build Source Distribution
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         # setuptools_scm won't work with shallow clone; fetch all history
         fetch-depth: 0
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: "3.x"
     - name: Build sdist
       run: pipx run build --sdist
     - name: Check metadata
       run: pipx run twine check dist/*.tar.gz
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         path: dist/*.tar.gz
+        name: sdist
 
   build_wheels:
     name: ${{ matrix.type }} ${{ matrix.arch }} on ${{ matrix.os }}
@@ -42,7 +43,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest]
+        # macos-13 runners are still x86_64, macos-14 (latest) are arm64; we want to build
+        # the x86_64 wheel on/for x86_64 macs
+        os: [macos-13, windows-latest]
         arch: [auto64]
         build: ["*"]
         skip: ["pp*"]
@@ -79,11 +82,11 @@ jobs:
             build: "*"
             skip: "pp*"
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: "3.x"
     - name: Install dependencies
@@ -96,9 +99,10 @@ jobs:
         CIBW_MANYLINUX_X86_64_IMAGE: ${{ matrix.CIBW_MANYLINUX_X86_64_IMAGE }}
         CIBW_ARCHS: ${{ matrix.arch }}
         CIBW_SKIP: ${{ matrix.skip }}
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         path: wheelhouse/*.whl
+        name: wheels-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.type }}
 
   build_arch_wheels:
     name: py${{ matrix.python }} on ${{ matrix.arch }}
@@ -122,9 +126,10 @@ jobs:
       env:
         CIBW_BUILD: cp${{ matrix.python }}-manylinux*
         CIBW_ARCHS: ${{ matrix.arch }}
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         path: wheelhouse/*.whl
+        name: wheels-${{ matrix.arch }}-${{ matrix.python }}
 
   deploy:
     name: Upload if tagged commit
@@ -134,11 +139,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/download-artifact@v2
+    - uses: actions/checkout@v4
+    - uses: actions/download-artifact@v4
       with:
-        name: artifact
         path: dist
+        merge-multiple: true
 
     - name: Extract release notes from annotated tag message
       id: release_notes
@@ -165,13 +170,8 @@ jobs:
 
     - name: Create GitHub release
       id: create_release
-      uses: actions/create-release@v1
-      env:
-        # This token is provided by Actions, you do not need to create your own token
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ github.ref }}
-        release_name: ${{ github.ref }}
         body_path: "${{ runner.temp }}/release_notes.md"
         draft: false
         prerelease: ${{ env.IS_PRERELEASE }}
