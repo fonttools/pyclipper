@@ -52,7 +52,7 @@ jobs:
         include:
           - os: ubuntu-latest
             arch: auto64
-            build: "pp39-manylinux* cp39-manylinux* cp310-manylinux* cp311-manylinux* cp312-manylinux* cp313-manylinux*"
+            build: "*-manylinux*"
 
           - os: macos-latest
             arch: universal2
