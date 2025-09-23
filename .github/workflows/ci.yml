@@ -137,6 +137,11 @@ jobs:
     # but only if all build jobs completed successfully
     needs: [build_wheels, build_arch_wheels, build_sdist]
     runs-on: ubuntu-latest
+    environment:
+      name: publish-to-pypi
+      url: https://pypi.org/p/pyclipper
+    permissions:
+      id-token: write # IMPORTANT: mandatory for trusted publishing.
 
     steps:
     - uses: actions/checkout@v4
@@ -176,7 +181,4 @@ jobs:
         draft: false
         prerelease: ${{ env.IS_PRERELEASE }}
 
-    - uses: pypa/gh-action-pypi-publish@v1.4.2
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_PASSWORD }}
+    - uses: pypa/gh-action-pypi-publish@v1.13.0
