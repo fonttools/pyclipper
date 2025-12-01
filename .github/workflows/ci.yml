@@ -92,31 +92,26 @@ jobs:
         name: wheels-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.type }}
 
   build_arch_wheels:
-    name: py${{ matrix.python }} on ${{ matrix.arch }}
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # aarch64 uses qemu so it's slow, build each py version in parallel jobs
-        python: [310, 311, 312, 313, 314]
-        arch: [aarch64]
+    name: Build wheels on Linux ARM64
+    runs-on: ubuntu-24.04-arm
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - uses: docker/setup-qemu-action@v1.2.0
+    - name: Set up Python
+      uses: actions/setup-python@v5
       with:
-        platforms: all
+        python-version: "3.x"
     - name: Install dependencies
       run: pip install cibuildwheel
     - name: Build Wheels
       run: python -m cibuildwheel --output-dir wheelhouse .
       env:
-        CIBW_BUILD: cp${{ matrix.python }}-manylinux*
-        CIBW_ARCHS: ${{ matrix.arch }}
+        CIBW_BUILD: "cp310-manylinux* cp311-manylinux* cp312-manylinux* cp313-manylinux* cp314-manylinux*"
     - uses: actions/upload-artifact@v4
       with:
         path: wheelhouse/*.whl
-        name: wheels-${{ matrix.arch }}-${{ matrix.python }}
+        name: wheels-linux-arm64
 
   deploy:
     name: Upload if tagged commit
