@@ -44,9 +44,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # macos-13 runners are still x86_64, macos-14 (latest) are arm64; we want to build
-        # the x86_64 wheel on/for x86_64 macs
-        os: [macos-13, windows-latest]
+        # macos-15-intel is x86_64; macos-latest is arm64
+        os: [macos-15-intel, windows-latest]
         arch: [auto64]
         build: ["*"]
         skip: ["pp*"]
