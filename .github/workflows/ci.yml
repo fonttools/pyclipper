@@ -119,6 +119,9 @@ jobs:
     # but only if all build jobs completed successfully
     needs: [build_wheels, build_arch_wheels, build_sdist]
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
 
     steps:
     - uses: actions/checkout@v4
@@ -158,7 +161,5 @@ jobs:
         draft: false
         prerelease: ${{ env.IS_PRERELEASE }}
 
-    - uses: pypa/gh-action-pypi-publish@v1.4.2
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_PASSWORD }}
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
