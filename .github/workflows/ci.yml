@@ -8,6 +8,7 @@ on:
     branches: [main]
 
 env:
+  CIBW_ENABLE: pypy
   CIBW_TEST_REQUIRES: "sympy pytest"
   CIBW_TEST_COMMAND: pytest {package}/tests -v
 
@@ -54,7 +55,7 @@ jobs:
           - os: ubuntu-latest
             arch: auto64
             type: manylinux2014
-            build: "pp39-manylinux* cp310-manylinux* cp311-manylinux* cp312-manylinux* cp313-manylinux* cp314-manylinux*"
+            build: "pp311-manylinux* cp310-manylinux* cp311-manylinux* cp312-manylinux* cp313-manylinux* cp314-manylinux*"
             CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
             CIBW_MANYLINUX_I686_IMAGE: manylinux2014
 
