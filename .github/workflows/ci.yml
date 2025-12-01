@@ -44,9 +44,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # macos-13 runners are still x86_64, macos-14 (latest) are arm64; we want to build
-        # the x86_64 wheel on/for x86_64 macs
-        os: [macos-13, windows-latest]
+        # macos-15-intel is x86_64; macos-latest is arm64
+        os: [macos-15-intel, windows-latest]
         arch: [auto64]
         build: ["*"]
         skip: ["pp*"]
@@ -92,31 +91,26 @@ jobs:
         name: wheels-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.type }}
 
   build_arch_wheels:
-    name: py${{ matrix.python }} on ${{ matrix.arch }}
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # aarch64 uses qemu so it's slow, build each py version in parallel jobs
-        python: [310, 311, 312, 313, 314]
-        arch: [aarch64]
+    name: Build wheels on Linux ARM64
+    runs-on: ubuntu-24.04-arm
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - uses: docker/setup-qemu-action@v1.2.0
+    - name: Set up Python
+      uses: actions/setup-python@v5
       with:
-        platforms: all
+        python-version: "3.x"
     - name: Install dependencies
       run: pip install cibuildwheel
     - name: Build Wheels
       run: python -m cibuildwheel --output-dir wheelhouse .
       env:
-        CIBW_BUILD: cp${{ matrix.python }}-manylinux*
-        CIBW_ARCHS: ${{ matrix.arch }}
+        CIBW_BUILD: "cp310-manylinux* cp311-manylinux* cp312-manylinux* cp313-manylinux* cp314-manylinux*"
     - uses: actions/upload-artifact@v4
       with:
         path: wheelhouse/*.whl
-        name: wheels-${{ matrix.arch }}-${{ matrix.python }}
+        name: wheels-linux-arm64
 
   deploy:
     name: Upload if tagged commit
@@ -124,6 +118,9 @@ jobs:
     # but only if all build jobs completed successfully
     needs: [build_wheels, build_arch_wheels, build_sdist]
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
 
     steps:
     - uses: actions/checkout@v4
@@ -163,7 +160,5 @@ jobs:
         draft: false
         prerelease: ${{ env.IS_PRERELEASE }}
 
-    - uses: pypa/gh-action-pypi-publish@v1.4.2
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_PASSWORD }}
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1

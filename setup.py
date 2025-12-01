@@ -1,51 +1,9 @@
-from __future__ import print_function
-import sys
-import os
 from setuptools import setup, find_packages
 from setuptools.extension import Extension
-from io import open
-
-"""
-Note on using the setup.py:
-setup.py operates in 2 modes that are based on the presence of the 'dev' file in the root of the project.
- - When 'dev' is present, Cython will be used to compile the .pyx sources. This is the development mode
-   (as you get it in the git repository).
- - When 'dev' is absent, C/C++ compiler will be used to compile the .cpp sources (that were prepared in
-   in the development mode). This is the distribution mode (as you get it on PyPI).
-
-This way the package can be used without or with an incompatible version of Cython.
-
-The idea comes from: https://github.com/MattShannon/bandmat
-"""
-dev_mode = os.path.exists('dev')
-
-if dev_mode:
-    from Cython.Distutils import build_ext
-
-    print('Development mode: Compiling Cython modules from .pyx sources.')
-    sources = ["src/pyclipper/_pyclipper.pyx", "src/clipper.cpp"]
-
-    from setuptools.command.sdist import sdist as _sdist
-
-    class sdist(_sdist):
-        """ Run 'cythonize' on *.pyx sources to ensure the .cpp files included
-        in the source distribution are up-to-date.
-        """
-        def run(self):
-            from Cython.Build import cythonize
-            cythonize(sources, language_level="2")
-            _sdist.run(self)
-
-    cmdclass = {'sdist': sdist, 'build_ext': build_ext}
-
-else:
-    print('Distribution mode: Compiling Cython generated .cpp sources.')
-    sources = ["src/pyclipper/_pyclipper.cpp", "src/clipper.cpp"]
-    cmdclass = {}
+from Cython.Distutils import build_ext
 
 
-needs_pytest = {'pytest', 'test'}.intersection(sys.argv)
-pytest_runner = ['pytest_runner'] if needs_pytest else []
+sources = ["src/pyclipper/_pyclipper.pyx", "src/clipper.cpp"]
 
 
 ext = Extension("pyclipper._pyclipper",
@@ -73,12 +31,18 @@ setup(
     maintainer="Cosimo Lupo",
     maintainer_email="cosimo@anthrotype.com",
     license='MIT',
-    url='https://github.com/greginvm/pyclipper',
+    url='https://github.com/fonttools/pyclipper',
     keywords=[
         'polygon clipping, polygon intersection, polygon union, polygon offsetting, polygon boolean, polygon, clipping, clipper, vatti'],
+    python_requires=">=3.10",
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "Programming Language :: Cython",
         "Programming Language :: C++",
         "Environment :: Other Environment",
@@ -94,10 +58,5 @@ setup(
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     ext_modules=[ext],
-    setup_requires=[
-       'cython>=0.28',
-       'setuptools_scm>=1.11.1',
-    ] + pytest_runner,
-    tests_require=['pytest'],
-    cmdclass=cmdclass,
+    cmdclass={'build_ext': build_ext},
 )
