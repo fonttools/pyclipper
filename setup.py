@@ -1,13 +1,9 @@
-import sys
 from setuptools import setup, find_packages
 from setuptools.extension import Extension
 from Cython.Distutils import build_ext
 
 
 sources = ["src/pyclipper/_pyclipper.pyx", "src/clipper.cpp"]
-
-needs_pytest = {'pytest', 'test'}.intersection(sys.argv)
-pytest_runner = ['pytest_runner'] if needs_pytest else []
 
 
 ext = Extension("pyclipper._pyclipper",
@@ -35,7 +31,7 @@ setup(
     maintainer="Cosimo Lupo",
     maintainer_email="cosimo@anthrotype.com",
     license='MIT',
-    url='https://github.com/greginvm/pyclipper',
+    url='https://github.com/fonttools/pyclipper',
     keywords=[
         'polygon clipping, polygon intersection, polygon union, polygon offsetting, polygon boolean, polygon, clipping, clipper, vatti'],
     python_requires=">=3.10",
@@ -62,10 +58,5 @@ setup(
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     ext_modules=[ext],
-    setup_requires=[
-       'cython>=0.28',
-       'setuptools_scm>=1.11.1',
-    ] + pytest_runner,
-    tests_require=['pytest'],
     cmdclass={'build_ext': build_ext},
 )
