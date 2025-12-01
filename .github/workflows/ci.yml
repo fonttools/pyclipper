@@ -50,25 +50,11 @@ jobs:
         build: ["*"]
         skip: ["pp*"]
         include:
-          # the manylinux1 docker images only contain from python3.6 to 3.9
-          - os: ubuntu-latest
-            type: manylinux1
-            arch: auto64
-            build: "cp{36,37,38,39}-manylinux*"
-            CIBW_MANYLINUX_X86_64_IMAGE: manylinux1
-            CIBW_MANYLINUX_I686_IMAGE: manylinux1
-          # the manylinux2010 image also contains python 3.10
-          - os: ubuntu-latest
-            arch: auto64
-            type: manylinux2010
-            build: "pp37-manylinux* pp38-manylinux* cp310-manylinux*"
-            CIBW_MANYLINUX_X86_64_IMAGE: manylinux2010
-            CIBW_MANYLINUX_I686_IMAGE: manylinux2010
-          # the manylinux2014 image also contains pypy3.9, and CPython 3.11, 3.12 and 3.13
+          # the manylinux2014 image also contains pypy3.9, and CPython 3.10-3.14
           - os: ubuntu-latest
             arch: auto64
             type: manylinux2014
-            build: "pp39-manylinux* cp311-manylinux* cp312-manylinux* cp313-manylinux*"
+            build: "pp39-manylinux* cp310-manylinux* cp311-manylinux* cp312-manylinux* cp313-manylinux* cp314-manylinux*"
             CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
             CIBW_MANYLINUX_I686_IMAGE: manylinux2014
 
@@ -110,7 +96,7 @@ jobs:
     strategy:
       matrix:
         # aarch64 uses qemu so it's slow, build each py version in parallel jobs
-        python: [36, 37, 38, 39, 310, 311, 312, 313]
+        python: [310, 311, 312, 313, 314]
         arch: [aarch64]
     steps:
     - uses: actions/checkout@v2
