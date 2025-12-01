@@ -1,8 +1,6 @@
 [build-system]
 requires = [
-    # pin setuptools on pypy to workaround this bug: https://github.com/pypa/distutils/issues/283
-    "setuptools<72.2.0; platform_python_implementation == 'PyPy'",
-    "setuptools; platform_python_implementation != 'PyPy'",
+    "setuptools",
     "wheel",
     "setuptools_scm",
     "cython",
