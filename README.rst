@@ -10,9 +10,6 @@ Pyclipper is a Cython wrapper exposing public functions and classes of
 the C++ translation of the `Angus Johnson's Clipper library (ver.
 6.4.2) <http://www.angusj.com/delphi/clipper.php>`__.
 
-Pyclipper releases were tested with Python 2.7 and 3.4 on Linux (Ubuntu
-14.04, x64) and Windows (8.1, x64).
-
 Source code is available on
 `GitHub <https://github.com/fonttools/pyclipper>`__. The package is published on 
 `PyPI <https://pypi.python.org/pypi/pyclipper>`__.
@@ -35,44 +32,16 @@ About Clipper
 Install
 =======
 
-Dependencies
-------------
-
-Cython dependency is optional. Cpp sources generated with Cython are
-available in releases.
-
-Note on using the ``setup.py``:
-
-``setup.py`` operates in 2 modes that are based on the presence of the
-``dev`` file in the root of the project.
-
--  When ``dev`` is **present**, Cython will be used to compile the ``.pyx``
-   sources. This is the *development mode* (as you get it in the git
-   repository).
--  When ``dev`` is **absent**, C/C++ compiler will be used to compile the
-   ``.cpp`` sources (that were prepared in in the development mode).
-   This is the distribution mode (as you get it on PyPI).
-
-This way the package can be used without or with an incompatible version
-of Cython.
-
-The idea comes from `Matt Shannon's bandmat
-library <https://github.com/MattShannon/bandmat>`__.
-
 From PyPI
 ---------
-
-Cython not required.
 
 ::
 
         pip install pyclipper
-        
+
 
 From source
 -----------
-
-Cython required.
 
 Clone the repository:
 
@@ -85,15 +54,13 @@ Install:
 
 ::
 
-        python setup.py install
-        
+        pip install .
 
-After every modification of ``.pyx`` files compile with Cython:
+For development, use an editable install:
 
 ::
 
-        python setup.py build_ext --inplace
-        
+        pip install -e .
 
 Clippers' preprocessor directives
 ---------------------------------
@@ -195,6 +162,8 @@ License
 
 Changelog
 =========
+
+For recent versions, see the `GitHub Releases page <https://github.com/fonttools/pyclipper/releases>`__.
 
 1.1.0
 -------
