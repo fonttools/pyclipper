@@ -8,7 +8,7 @@ About
 
 Pyclipper is a Cython wrapper exposing public functions and classes of
 the C++ translation of the `Angus Johnson's Clipper library (ver.
-6.4.2) <http://www.angusj.com/delphi/clipper.php>`__.
+6.4.2) <https://web.archive.org/web/20220313012148/http://www.angusj.com/delphi/clipper.php>`__.
 
 Source code is available on
 `GitHub <https://github.com/fonttools/pyclipper>`__. The package is published on 
@@ -27,7 +27,7 @@ About Clipper
         algorithm.
 
         \ `Angus Johnson's Clipper
-        library <http://www.angusj.com/delphi/clipper.php>`__\ 
+        library <https://web.archive.org/web/20220313012148/http://www.angusj.com/delphi/clipper.php>`__\ 
 
 Install
 =======
@@ -88,7 +88,7 @@ library.
    ``Pyclipper.Execute`` and ``Pyclipper.Execute2``.
 
 Basic clipping example (based on `Angus Johnson's Clipper
-library <http://www.angusj.com/delphi/clipper.php>`__):
+library <https://web.archive.org/web/20220313012148/http://www.angusj.com/delphi/clipper.php>`__):
 
 .. code:: python
 
@@ -139,7 +139,7 @@ Authors
 =======
 
 -  The Clipper library is written by `Angus
-   Johnson <http://www.angusj.com/delphi/clipper.php>`__,
+   Johnson <https://web.archive.org/web/20220313012148/http://www.angusj.com/delphi/clipper.php>`__,
 -  This wrapper was initially written by `Maxime
    Chalton <https://sites.google.com/site/maxelsbackyard/home/pyclipper>`__,
 -  Adaptions to make it work with version 5 written by `Lukas
