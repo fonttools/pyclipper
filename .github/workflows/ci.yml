@@ -45,7 +45,7 @@ jobs:
       fail-fast: false
       matrix:
         # macos-15-intel is x86_64; macos-latest is arm64
-        os: [macos-15-intel, windows-latest]
+        os: [macos-15-intel, windows-latest, windows-11-arm]
         arch: [auto64]
         build: ["*"]
         skip: ["pp*"]
